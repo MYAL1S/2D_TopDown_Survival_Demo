@@ -18,7 +18,7 @@
 | 里程碑 | 状态 | 说明 |
 | --- | --- | --- |
 | M1 工程初始化 | 已完成 | 创建 Unity 工程、目录结构、基础场景 |
-| M2 玩家移动和摄像机 | 未开始 | WASD 移动、摄像机跟随 |
+| M2 玩家移动和摄像机 | 已完成 | WASD 移动、摄像机跟随 |
 | M3 敌人生成和追踪 | 未开始 | 屏幕外刷怪、敌人追踪玩家 |
 | M4 自动攻击和战斗 | 未开始 | 自动索敌、攻击、伤害、死亡 |
 | M5 掉落和拾取 | 未开始 | 敌人死亡掉落、玩家拾取 |
@@ -237,9 +237,61 @@ M1 工程初始化已完成，当前已完成内容如下：
 
 实际实现记录：
 
-```text
-待 M2 完成后补充。
-```
+状态：已完成
+
+### 实际创建/使用的脚本
+
+| 脚本 | 实际职责 |
+| --- | --- |
+| PlayerController.cs | 读取输入，触发移动/待机事件，读取 PlayerConfig 中的移动速度 |
+| InputSystemAdapter.cs | 统一读取键盘 WASD 和 UI 摇杆输入，输出 Vector2 MoveInput |
+| VirtualJoystick.cs | 将 UI 摇杆拖拽转换为移动向量 |
+| PlayerConfig.cs | 使用 ScriptableObject 配置玩家基础速度和角色资源引用 |
+| MovementByVelocity.cs | 根据移动事件设置 Rigidbody2D.velocity |
+| Idle.cs | 根据待机事件停止 Rigidbody2D |
+| PlayerAnimator.cs | 根据移动/待机事件设置 Animator 的 Speed 参数 |
+
+### 实际使用的 Prefab / 场景对象
+
+| 对象 | 说明 |
+| --- | --- |
+| Mage.prefab | 当前玩家角色预制体，包含 Animator、Rigidbody2D、Collider2D、PlayerController 等组件 |
+| Joystick.prefab | UI 摇杆，放在 Canvas 下，用于移动端/鼠标拖拽输入 |
+| Virtual Camera | Cinemachine 虚拟摄像机，Follow 目标设置为玩家 |
+| Canvas | 使用 Screen Space - Overlay 渲染 UI |
+| EventSystem | 处理 UI 摇杆输入事件 |
+
+### 实际实现方式
+
+1. `InputSystemAdapter` 统一输出 `MoveInput`。
+2. 键盘输入使用 `Horizontal / Vertical`。
+3. UI 摇杆输入通过 `VirtualJoystick` 输出。
+4. 当摇杆有输入时优先使用摇杆，否则使用键盘输入。
+5. 玩家速度从 `PlayerConfig.MoveSpeed` 读取。
+6. `PlayerController.Update()` 只读取输入。
+7. `PlayerController.FixedUpdate()` 触发移动或待机事件。
+8. `MovementByVelocity` 使用 `Rigidbody2D.velocity` 移动玩家。
+9. 斜向输入会归一化，避免斜向速度过快。
+10. `IdleEvent` 只在从移动切换到停止时触发一次，避免每帧重复广播。
+11. Animator 使用 `Speed` 参数切换 Idle / Run 动画。
+12. 摄像机使用 Cinemachine Virtual Camera 跟随玩家。
+
+### 和原计划不一致的地方
+
+1. 原计划只列出 `PlayerController.cs / InputSystemAdapter.cs / PlayerConfig.cs`，实际为了事件解耦，增加并使用了 `MovementByVelocity`、`Idle`、`PlayerAnimator` 等组件。
+2. 除 WASD 外，额外接入了 UI 摇杆输入。
+3. UI 当前采用 `Screen Space - Overlay`，暂不使用独立 UI Camera。
+
+### 验收结果
+
+1. WASD 可以控制玩家移动。
+2. UI 摇杆可以控制玩家移动。
+3. 斜向移动速度正常。
+4. 玩家停止时可以切换回待机状态。
+5. 玩家移动时可以播放 Run 动画。
+6. 摄像机可以跟随玩家。
+7. 移动速度可以通过 `PlayerConfig` 调整。
+8. 项目编译通过，Console 无持续脚本编译错误。
 
 ## 8. M3 敌人生成和追踪实现计划
 
