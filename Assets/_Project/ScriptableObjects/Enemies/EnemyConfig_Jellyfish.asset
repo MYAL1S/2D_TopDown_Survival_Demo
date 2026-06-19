@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50311a48f6528224a9820b479f733eca, type: 3}
+  m_Name: EnemyConfig_Jellyfish
+  m_EditorClassIdentifier: 
+  resourceId: enemy_jellyfish
+  enemyName: Enemy Jellyfish
+  health: 16
+  speed: 1.5
+  atk: 3
+  def: 0
+  enemyPrefab: {fileID: 1090571174421192766, guid: ba471a66ef3b5e84c8dbda0667af2dc3, type: 3}
+  animatorController: {fileID: 9100000, guid: a7a9c44b4523e694faaafed3746c3f9e, type: 2}

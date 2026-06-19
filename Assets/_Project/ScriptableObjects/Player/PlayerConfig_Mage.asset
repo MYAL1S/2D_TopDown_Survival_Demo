@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6f0aff2df8068b418a9e31e52d3a6f4, type: 3}
   m_Name: PlayerConfig_Mage
   m_EditorClassIdentifier: 
+  resourceId: player_mage
   playerCharacterName: Mage
   playerPrefab: {fileID: 2921880940271959218, guid: 54121bc69e709ef4aae3deb8291032d8, type: 3}
   runtimeAnimatorController: {fileID: 9100000, guid: 94a86386fc0444b4da7da44db7c6db90, type: 2}

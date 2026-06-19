@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50311a48f6528224a9820b479f733eca, type: 3}
+  m_Name: EnemyConfig_Bug
+  m_EditorClassIdentifier: 
+  resourceId: enemy_bug
+  enemyName: Enemy Bug
+  health: 10
+  speed: 1.5
+  atk: 2
+  def: 0
+  enemyPrefab: {fileID: 1090571174421192766, guid: 5dc89d49c6842b5409db52d345501d70, type: 3}
+  animatorController: {fileID: 9100000, guid: cc382106076b14e43b8c81823e3aebd4, type: 2}

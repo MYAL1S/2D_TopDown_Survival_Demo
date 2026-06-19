@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7468917078649122424}
   - component: {fileID: 5611959192970924213}
-  - component: {fileID: 9051659100776434297}
   - component: {fileID: 1982295306974641257}
   m_Layer: 7
   m_Name: Enemy Jellyfish Shade
@@ -62,48 +61,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &9051659100776434297
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1090571174421192766}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4a4496d11815d848b6014f08b944435, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 0.4
-  damage: 15
-  hp: 1000
-  canBeKickedBack: 0
-  shouldFadeIn: 0
-  rb: {fileID: 5611959192970924213}
-  spriteRenderer: {fileID: 1918679914337784740}
-  dissolveSettings: {fileID: 11400000, guid: 2809f161967d6a0499a1a3061833468b, type: 2}
-  shadowSprite: {fileID: 4685868696056258955}
-  enemyCollider: {fileID: 1982295306974641257}
-  hitScaleAmount: 0.2
-  hitColor: {r: 1, g: 1, b: 1, a: 1}
-  animator: {fileID: 5814870023696751212}
-  attackType: 1
-  minProjectilesPerAttack: 6
-  maxProjectilesPerAttack: 8
-  timeBetweenProjectiles: 0.1
-  projectileDamage: 10
-  projectileSpread: 1
-  overrideProjectileSpeed: 1
-  projectileSpeed: 2
-  overrideProjectileLifetime: 1
-  projectileLifetime: 5
-  projectilePrefab: {fileID: 2753907358125633333, guid: da7d65690ab341148ae61638217253f1,
-    type: 3}
-  rangedAttackCooldown: 3
-  useAttackAnimation: 1
-  minDistanceToPlayerForAttacking: 5
-  changeSpeedDuringAttackAnimation: 1
-  speedDuringAttackAnimation: 0
 --- !u!58 &1982295306974641257
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -133,7 +90,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0.4}
@@ -150,7 +107,6 @@ GameObject:
   - component: {fileID: 2486894810092046721}
   - component: {fileID: 1918679914337784740}
   - component: {fileID: 5814870023696751212}
-  - component: {fileID: 8331663812795537297}
   m_Layer: 0
   m_Name: enemy_jellyfish_shade_0
   m_TagString: Untagged
@@ -212,8 +168,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1416399409
+  m_SortingLayer: 3
   m_SortingOrder: -20
   m_Sprite: {fileID: -118888301, guid: c6684f9a72d1ba346ac7347a4d287862, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -225,7 +181,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!95 &5814870023696751212
 Animator:
   serializedVersion: 5
@@ -247,18 +203,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &8331663812795537297
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1768495435335234324}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7041550273e3f345b64cc95b05cf4c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &2232395333167043285
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -267,73 +211,67 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2486894810092046721}
     m_Modifications:
-    - target: {fileID: 6203037695939429434, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 6203037695939429434, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_Name
       value: Shadow
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 6916547691420267358, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
+      propertyPath: m_SortingLayer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6916547691420267358, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1233491025
+      objectReference: {fileID: 0}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.15922196
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalScale.y
       value: 0.09046602
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalScale.z
       value: 0.16887125
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.114
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalRotation.x
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalRotation.y
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalRotation.z
       value: -0
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-        type: 3}
+    - target: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
@@ -342,15 +280,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
---- !u!212 &4685868696056258955 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 6916547691420267358, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-    type: 3}
-  m_PrefabInstance: {fileID: 2232395333167043285}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7502935907006257338 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed,
-    type: 3}
+  m_CorrespondingSourceObject: {fileID: 8567192082132290159, guid: bd21be6fc4cedd44e93cefd12da1c8ed, type: 3}
   m_PrefabInstance: {fileID: 2232395333167043285}
   m_PrefabAsset: {fileID: 0}

@@ -19,7 +19,7 @@
 | --- | --- | --- |
 | M1 工程初始化 | 已完成 | 创建 Unity 工程、目录结构、基础场景 |
 | M2 玩家移动和摄像机 | 已完成 | WASD 移动、摄像机跟随 |
-| M3 敌人生成和追踪 | 未开始 | 屏幕外刷怪、敌人追踪玩家 |
+| M3 敌人生成和追踪 | 已完成 | 屏幕外刷怪、敌人追踪玩家 |
 | M4 自动攻击和战斗 | 未开始 | 自动索敌、攻击、伤害、死亡 |
 | M5 掉落和拾取 | 未开始 | 敌人死亡掉落、玩家拾取 |
 | M6 Buff/Debuff/AOE | 未开始 | 状态效果和范围效果 |
@@ -332,9 +332,125 @@ M1 工程初始化已完成，当前已完成内容如下：
 
 实际实现记录：
 
+状态：已完成
+
+### 实际创建/使用的脚本
+
+| 脚本 | 实际职责 |
+| --- | --- |
+| GameResources.cs | 缓存 PlayerConfig 和 EnemyConfig 资源引用，提供按 ResourceId 查询和随机获取敌人配置的入口 |
+| Generator.cs | 生成系统上下文，集中引用 EnemySpawnManager、SpawnSystem、ItemDropGenerator、CharacterSelectionSystem |
+| EnemyConfig.cs | 配置敌人 resourceId、预制体、生命、速度、攻击、防御和动画控制器 |
+| SpawnConfig.cs | 配置基础敌人列表、按时间解锁敌人、刷怪速率曲线、最大存活数曲线、批量生成曲线、每帧生成上限和屏幕外边距 |
+| SpawnSystem.cs | 控制刷怪开始、暂停、结束，计算屏幕外生成点，维护活跃敌人字典和死亡清理列表 |
+| EnemySpawnManager.cs | 根据 EnemyConfig 从对象池获取或创建敌人，补齐运行时组件，初始化配置和追踪目标 |
+| ComponentPool.cs | 通用组件对象池，约束对象实现 IPoolable，出池/入池时自动调用对象自身回调 |
+| IPoolable.cs | 对象池生命周期接口，定义 OnSpawnedFromPool 和 OnReturnedToPool |
+| EnemyController.cs | 缓存敌人配置、属性、Health 和追踪目标，负责运行时组件兜底补齐和对象池生命周期重置 |
+| EnemyAISystem.cs | 根据目标位置驱动 Rigidbody2D 追踪玩家，并在重叠过近时加入分离推力 |
+| Health.cs | 通用生命组件，负责受伤、扣血、防御计算、死亡判定，并触发 InjuredEvent / DeathEvent |
+| InjuredEvent.cs | 通用受伤事件组件 |
+| DeathEvent.cs | 通用死亡事件组件 |
+| EnemyInjuredHandler.cs | 监听敌人受伤事件，执行受击闪白表现 |
+| EnemyDeathHandler.cs | 监听敌人死亡事件，停止移动、关闭碰撞、播放死亡效果、通知 SpawnSystem 清理记录并回收到对象池 |
+| EnemyDropHandler.cs | 监听敌人死亡事件，调用 ItemDropGenerator 生成掉落，作为 M5 掉落系统接入点 |
+| NearestEnemyDamageTest.cs | 调试脚本，按 J 键让距离玩家最近的敌人扣血，用于测试受伤和死亡事件 |
+
+### 实际使用的配置和场景对象
+
+| 对象 | 说明 |
+| --- | --- |
+| GameResources | 持有玩家和敌人配置资源引用，并在运行时构建查询缓存 |
+| Generator | 作为生成系统根对象，持有敌人生成、刷怪、掉落和角色选择相关管理器 |
+| SpawnConfig | 使用 ScriptableObject 配置刷怪规则和随时间变化的生成压力 |
+| EnemyConfig | 使用 ScriptableObject 配置每类敌人的属性和预制体 |
+| Enemy Pool | EnemySpawnManager 创建的池容器，用于存放已失活的敌人实例 |
+
+### 实际实现方式
+
+1. `GameResources` 只负责保存和查询资源配置，不承载生成、选择、掉落等业务逻辑。
+2. `SpawnSystem` 对外提供 `StartSpawning`、`PauseSpawning`、`StopSpawning` 三个接口。
+3. `SpawnSystem` 通过 `Camera.main` 获取主相机，通过 `Player` 标签查找玩家目标，不强依赖场景中手动拖入相机或玩家引用。
+4. `SpawnSystem` 根据 `elapsedTime` 查询 `SpawnConfig`，通过 `spawnRateByTime`、`maxAliveByTime`、`batchCountByTime` 曲线控制生成压力。
+5. `SpawnConfig` 支持通过 `timedEnemyResources` 按游戏时间加入不同敌人资源。
+6. `SpawnSystem` 每帧累积 `spawnBudget`，再结合当前最大存活数、批量生成数和每帧生成上限决定本帧生成数量。
+7. `EnemySpawnManager` 按 `EnemyConfig.ResourceId` 维护独立对象池，并通过 `ComponentPool<EnemyController>` 复用敌人实例。
+8. `EnemySpawnManager` 只负责实例化敌人、补齐运行时组件、初始化配置和追踪目标，不再统一注册或转发敌人死亡事件。
+9. `EnemyController` 实现 `IPoolable`，在出池和入池时重置刚体速度、角速度和追踪目标。
+10. `EnemyAISystem` 在 `FixedUpdate` 中根据目标位置计算移动方向，并通过 `Rigidbody2D.velocity` 驱动敌人追踪玩家。
+11. `EnemyAISystem` 加入极近距离分离推力，降低敌人完全重叠时的显示异常。
+12. 敌人使用 `Health` 统一处理生命、受伤和死亡，玩家后续也可以复用同一套 `Health / InjuredEvent / DeathEvent`。
+13. `EnemyInjuredHandler`、`EnemyDeathHandler`、`EnemyDropHandler` 分别监听事件并处理敌人的受伤表现、死亡回收和掉落入口。
+14. `EnemyDeathHandler` 死亡时调用 `SpawnSystem.AddToDeadEnemies`，`SpawnSystem` 在 `Update` 开头统一 `CleanupDeadEnemies`。
+15. `ComponentPool` 使用 `Queue` 保存未激活实例，`Get` 时激活对象并调用 `OnSpawnedFromPool`，`Release` 时调用 `OnReturnedToPool`、失活对象并放回队列。
+16. `NearestEnemyDamageTest` 用于调试，按 `J` 键让距离玩家最近的敌人扣血，验证 `InjuredEvent` 和 `DeathEvent` 链路。
+
+### 和原计划不一致的地方
+
+1. 原计划只有 `EnemyController / SpawnSystem / EnemyAISystem / EnemyConfig / SpawnConfig`，实际为了彻底解耦，增加了 `GameResources`、`Generator`、`EnemySpawnManager`、对象池和事件监听脚本。
+2. 原计划中 `EnemyController` 包含受击、死亡和回收职责，实际改为 `Health` 负责生命判定，`EnemyInjuredHandler` 负责受击表现，`EnemyDeathHandler` 负责死亡表现和回收，`EnemyDropHandler` 负责掉落入口。
+3. 原计划中的生成规则偏固定间隔和固定上限，实际改为基于游戏时间曲线和 `spawnBudget` 的持续增压刷怪。
+4. 原计划只描述固定敌人列表，实际支持按时间段加入不同敌人资源。
+5. 原计划未明确对象池，实际 M3 已提前接入通用对象池，为后续子弹、特效、伤害数字和掉落物复用。
+6. 原计划未处理敌人死亡后字典清理问题，实际使用 `deadEnemyIds` 延迟清理，避免遍历字典时修改字典。
+7. 原计划未处理背景和角色显示层级问题，实际通过 Sorting Layer / Order 保证背景始终在最底层。
+8. 原计划未处理敌人重叠显示问题，实际在 `EnemyAISystem` 中加入分离推力，减少敌人完全贴合。
+9. 原计划未包含无限地图/背景生成，实际增加了固定池版本 `InfiniteBackground`，保证玩家和相机持续移动时画面内始终有连续背景。
+
+### 验收结果
+
+1. 敌人可以在屏幕外生成。
+2. 敌人会追踪带 `Player` 标签的玩家。
+3. 生成压力会随游戏时间通过 `SpawnConfig` 曲线变化。
+4. 可以按时间段加入不同敌人配置。
+5. 当前活跃敌人数量不会超过当前时间对应的最大存活数。
+6. 敌人死亡后会从 `activeEnemies` 字典移除。
+7. 敌人死亡后会禁用碰撞并回收到对象池；无法回池时至少会失活。
+8. 敌人受伤和死亡通过 `Health` 下的 `InjuredEvent / DeathEvent` 触发，具体表现由监听脚本负责。
+9. 敌人重叠过近时会通过分离推力散开。
+10. 可以通过 `NearestEnemyDamageTest` 按 `J` 键测试最近敌人的受伤和死亡事件。
+11. 背景通过 Sorting Layer / Order 保持在最底层，不会遮挡玩家和敌人。
+12. 相机移动时背景瓦片会循环重定位，画面内保持连续背景。
+13. 无限背景使用固定数量瓦片复用，不会在移动过程中持续创建或销毁背景对象。
+
+实现过程中遇到的问题，以及解决方案:
+1. 通过 Cinemachine 实现跟随角色时，画面会有抖动。
 ```text
-待 M3 完成后补充。
+通过设置 Player 和 Enemy 对象上的 Rigidbody2D.interpolation 为 RigidbodyInterpolation2D.Interpolate，通过插值避免渲染与物理帧不同步。
+移动逻辑集中在 FixedUpdate 内写入 Rigidbody2D.velocity，减少 Update 与物理帧混用导致的抖动。
+降低 Cinemachine 阻尼让相机跟随更平滑。
+调整死区避免小范围移动跟随
 ```
+2. 角色通过角色生成系统生成时，场景开始时 Cinemachine 可能没有 Follow 目标。
+```text
+为 Cinemachine 添加 CameraTargetBinder 脚本，对外提供绑定和解绑 target 的方法。
+CharacterSpawnManager 创建角色后将角色 transform 传入绑定方法。
+后续如果角色频繁销毁和重建，不重复创建 Cinemachine，只更新已有虚拟相机的 Follow 目标。
+```
+3. 怪物重叠时显示异常。
+```text
+为背景、敌人、玩家的 SpriteRenderer 配置层级，通过 Sorting Layer / Order 保证背景始终位于最底层。
+敌人和玩家的 Sprite Pivot 调整为 Bottom Center，并将 SpriteRenderer 的 Sprite Sort Point 设置为 Pivot。
+敌人之间不只依赖层级排序解决完全重叠问题，还在移动逻辑中处理。
+EnemyAISystem 在移动向量上叠加极近距离分离推力。
+当周围敌人距离小于 separationDistance 时，当前敌人获得反向推力，表现上会像水流一样散开。
+```
+4. 敌人死亡事件触发后没有失活。
+```text
+确认 DeathEvent 只负责广播事件，不负责具体死亡逻辑。
+EnemyDeathHandler 负责监听 DeathEvent 并执行死亡协程。
+修正运行时补组件顺序，先确保 EnemyController，再添加 EnemyDeathHandler / EnemyDropHandler 等监听脚本。
+EnemyDeathHandler 在回池前重新获取 EnemyController，避免 Awake 时缓存为空导致 ReleaseEnemy(null) 后直接返回。
+如果找不到 EnemySpawnManager 或 EnemyController，则兜底执行 gameObject.SetActive(false)。
+```
+5. 管理器职责过重。
+```text
+EnemySpawnManager 不再订阅所有敌人死亡事件，也不再统一处理敌人死亡表现。
+死亡、受伤、掉落逻辑分散到每个敌人对象上的监听脚本。
+SpawnSystem 只维护 activeEnemies 字典和 deadEnemyIds 列表。
+敌人死亡时由 EnemyDeathHandler 调用 AddToDeadEnemies，SpawnSystem 每帧统一 CleanupDeadEnemies，避免遍历字典时修改字典。
+```
+
 
 ## 9. M4 自动攻击和战斗实现计划
 
