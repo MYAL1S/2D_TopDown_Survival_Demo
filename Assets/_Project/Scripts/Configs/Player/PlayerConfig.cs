@@ -22,8 +22,27 @@ public class PlayerConfig : ScriptableObject
     [SerializeField]
     private float baseSpeed = 8f;
 
-    
+    [SerializeField]
+    [Tooltip("Weapon equipped when the character is spawned.")]
+    private WeaponConfig startingWeaponConfig;
+
+    [Header("PLAYER COMBAT DETAILS")]
+    [SerializeField]
+    [Min(1f)]
+    private float maxHealth = 100f;
+
+    [SerializeField]
+    [Min(0f)]
+    private float defense = 0f;
+
+    [SerializeField]
+    [Min(0f)]
+    private float injuredInvincibilityDuration = 0.75f;
 
     public string ResourceId => string.IsNullOrWhiteSpace(resourceId) ? playerCharacterName : resourceId;
     public float MoveSpeed => baseSpeed;
+    public WeaponConfig StartingWeaponConfig => startingWeaponConfig;
+    public float MaxHealth => maxHealth;
+    public float Defense => defense;
+    public float InjuredInvincibilityDuration => injuredInvincibilityDuration;
 }

@@ -20,20 +20,20 @@ public class PlayerAnimator : MonoBehaviour
     void OnEnable()
     {
         //订阅移动事件
-        player.movementByVelocityEvent.OnMovementByVelocity += MovementByVelocityEvent_OnMovementByVelocity;
+        player.MovementByVelocityEvent.OnMovementByVelocity += MovementByVelocityEvent_OnMovementByVelocity;
 
         // 订阅待机事件
-        player.idleEvent.OnIdle += IdleEvent_OnIdle;
+        player.IdleEvent.OnIdle += IdleEvent_OnIdle;
     }
 
 
     void OnDisable()
     {
         // 取消订阅移动事件
-        player.movementByVelocityEvent.OnMovementByVelocity -= MovementByVelocityEvent_OnMovementByVelocity;
+        player.MovementByVelocityEvent.OnMovementByVelocity -= MovementByVelocityEvent_OnMovementByVelocity;
 
         // 取消订阅待机事件
-        player.idleEvent.OnIdle -= IdleEvent_OnIdle;
+        player.IdleEvent.OnIdle -= IdleEvent_OnIdle;
     }
 
 
@@ -61,7 +61,7 @@ public class PlayerAnimator : MonoBehaviour
  /// </summary>
  private void SetMovementAnimationParameters(float speed)
  {
-     player.animator.SetFloat(Settings.speed, speed);
+     player.Animator.SetFloat(Settings.speed, speed);
  }
 
 
@@ -71,6 +71,6 @@ public class PlayerAnimator : MonoBehaviour
  /// </summary>
  private void SetIdleAnimationParameters()
  {
-     player.animator.SetFloat(Settings.speed, 0f);
+     player.Animator.SetFloat(Settings.speed, 0f);
  }
 }

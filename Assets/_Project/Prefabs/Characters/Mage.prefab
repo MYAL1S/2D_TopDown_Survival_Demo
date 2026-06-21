@@ -23,6 +23,11 @@ GameObject:
   - component: {fileID: 186508644934658843}
   - component: {fileID: 3530279679223082299}
   - component: {fileID: 9048378829718349348}
+  - component: {fileID: 3601484893364291744}
+  - component: {fileID: 7795739378231731502}
+  - component: {fileID: 8525528369750801740}
+  - component: {fileID: 4523943929481179065}
+  - component: {fileID: 6734859300955922467}
   m_Layer: 6
   m_Name: Mage
   m_TagString: Player
@@ -42,7 +47,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1808375551242187839}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1385333651283103268
@@ -84,7 +90,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 511997863
-  m_SortingLayer: 4
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 1192330266, guid: 0a884b8b0d970f442998a4f3f596c381, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -308,3 +314,100 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f483b9dbb6a4d349a0e6b9a8a22671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3601484893364291744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ad8e7ed387947d49efb3efaeedc9bd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startingWeaponConfigs:
+  - {fileID: 11400000, guid: 5551781391e835949a26563324a94f92, type: 2}
+  firePoint: {fileID: 1808375551242187839}
+--- !u!114 &7795739378231731502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 376e96e5704c4902abfd67e63691d345, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8525528369750801740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c8b658608e2a74bbdb8dd42738d740, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.08
+--- !u!114 &4523943929481179065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a52f7618f66bf914aaa4d00d6b8e027d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6734859300955922467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10d551965cb3448ca29d654f902e343c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  invincibilityDuration: 0.75
+--- !u!1 &4901819110404372563
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1808375551242187839}
+  m_Layer: 0
+  m_Name: FIrePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1808375551242187839
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4901819110404372563}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8041933458540368942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -35,7 +35,7 @@ public class SpawnSystem : MonoBehaviour
 
     // 活跃敌人字典
     // 键为 InstanceID
-    private readonly Dictionary<int, EnemyController> activeEnemies = new Dictionary<int, EnemyController>();
+    private readonly Dictionary<int, Enemy> activeEnemies = new Dictionary<int, Enemy>();
     // 待清理的死亡敌人 ID 列表
     // 用于避免在迭代字典时修改其结构
     private readonly List<int> deadEnemyIds = new List<int>();
@@ -206,20 +206,20 @@ public class SpawnSystem : MonoBehaviour
         }
 
         Vector3 spawnPosition = GetRandomOffScreenPosition(mainCamera);
-        EnemyController enemyController = enemySpawnManager.SpawnEnemy(
+        Enemy enemy = enemySpawnManager.SpawnEnemy(
             selectedConfig,
             spawnPosition,
             Quaternion.identity,
             transform,
             playerTarget);
 
-        if (enemyController == null)
+        if (enemy == null)
         {
             return;
         }
 
         // 将新生成的敌人加入活跃字典
-        activeEnemies[enemyController.GetInstanceID()] = enemyController;
+        activeEnemies[enemy.GetInstanceID()] = enemy;
     }
 
     /// <summary>

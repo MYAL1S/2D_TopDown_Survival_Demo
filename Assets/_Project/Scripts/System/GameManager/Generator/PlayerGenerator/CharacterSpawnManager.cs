@@ -44,6 +44,25 @@ public class CharacterSpawnManager : MonoBehaviour
         {
             controller.Initialize(config);
         }
+
+        Health health = playerObject.GetComponent<Health>();
+        if (health != null)
+        {
+            health.Initialize(config.MaxHealth, config.Defense);
+        }
+
+        PlayerDamageReceiver damageReceiver = playerObject.GetComponent<PlayerDamageReceiver>();
+        if (damageReceiver != null)
+        {
+            damageReceiver.Initialize(config.InjuredInvincibilityDuration);
+        }
+
+        PlayerWeaponSystem weaponSystem = playerObject.GetComponent<PlayerWeaponSystem>();
+        if (weaponSystem != null)
+        {
+            weaponSystem.InitializeStartingWeapon(config.StartingWeaponConfig);
+        }
+
         return playerObject.GetComponent<Player>();
     }
 
@@ -55,14 +74,9 @@ public class CharacterSpawnManager : MonoBehaviour
         Rigidbody2D rigidBody2D = EnsureComponent<Rigidbody2D>(playerObject);
         ConfigureRigidbody(rigidBody2D);
         ConfigureColliders(playerObject);
-
-        EnsureComponent<MovementByVelocityEvent>(playerObject);
-        EnsureComponent<MovementByVelocity>(playerObject);
-        EnsureComponent<IdleEvent>(playerObject);
-        EnsureComponent<Idle>(playerObject);
-        EnsureComponent<PlayerController>(playerObject);
-        EnsureComponent<PlayerAnimator>(playerObject);
-        EnsureComponent<Player>(playerObject);
+        Player player = EnsureComponent<Player>(playerObject);
+        player.EnsureRuntimeComponents();
+        player.CacheComponents();
     }
 
     /// <summary>

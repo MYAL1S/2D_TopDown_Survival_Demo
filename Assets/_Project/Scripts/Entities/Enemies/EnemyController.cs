@@ -8,9 +8,12 @@ using UnityEngine;
 [RequireComponent(typeof(EnemyDropHandler))]
 [RequireComponent(typeof(EnemyInjuredHandler))]
 [RequireComponent(typeof(EnemyDeathHandler))]
+[RequireComponent(typeof(AttackEvent))]
+[RequireComponent(typeof(EnemyAttackSystem))]
+[RequireComponent(typeof(EnemyMeleeAttackHandler))]
 #endregion
 [DisallowMultipleComponent]
-public class EnemyController : MonoBehaviour, IPoolable
+public class EnemyController : MonoBehaviour
 {
     /// 敌人配置数据 包含敌人的属性和动画控制器等信息
     [SerializeField]
@@ -21,6 +24,8 @@ public class EnemyController : MonoBehaviour, IPoolable
     private float atk = 1f;
     // 敌人防御力
     private float def = 0f;
+    private float attackCooldown = 1f;
+    private float attackRange = 0.75f;
     // 敌人刚体组件
     private Rigidbody2D rigidBody2D;
     // 敌人生命值组件
@@ -32,6 +37,8 @@ public class EnemyController : MonoBehaviour, IPoolable
     public float MoveSpeed => speed;
     public float Attack => atk;
     public float Defense => def;
+    public float AttackCooldown => attackCooldown;
+    public float AttackRange => attackRange;
 
     // 敌人是否存活 如果生命值组件为空 则认为敌人存活
     public bool IsAlive => health == null || health.IsAlive;
@@ -39,7 +46,6 @@ public class EnemyController : MonoBehaviour, IPoolable
 
     private void Awake()
     {
-        EnsureRuntimeComponents();
         // 缓存组件引用
         rigidBody2D = GetComponent<Rigidbody2D>();
         health = GetComponent<Health>();
@@ -50,11 +56,6 @@ public class EnemyController : MonoBehaviour, IPoolable
         rigidBody2D.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         // 配置敌人子物体的碰撞器为触发器 避免物理碰撞干扰敌人的移动和攻击逻辑
         ConfigureColliders();
-    }
-
-    private void OnEnable()
-    {
-        ApplyConfig(enemyConfig);
     }
 
     /// <summary>
@@ -68,6 +69,8 @@ public class EnemyController : MonoBehaviour, IPoolable
             speed = Mathf.Max(0f, config.speed);
             atk = Mathf.Max(0f, config.atk);
             def = Mathf.Max(0f, config.def);
+            attackCooldown = Mathf.Max(0.01f, config.AttackCooldownSeconds);
+            attackRange = Mathf.Max(0.01f, config.AttackRange);
             health.Initialize(config.health, def);
 
             Animator animator = GetComponentInChildren<Animator>();
@@ -91,26 +94,14 @@ public class EnemyController : MonoBehaviour, IPoolable
         Target = target;
     }
 
+    /// <summary>
+    /// 设置敌人的追踪目标 Transform 组件 
+    /// 以便敌人可以追踪和攻击目标
+    /// </summary>
+    /// <param name="target">目标Transform</param>
     public void SetTarget(Transform target)
     {
         Target = target;
-    }
-
-    /// <summary>
-    /// 当敌人从对象池中被取出时调用 重置刚体的速度和角速度
-    /// </summary>
-    public void OnSpawnedFromPool()
-    {
-        ResetRigidbody();
-    }
-
-    /// <summary>
-    /// 当敌人被返回到对象池时调用 清除目标并重置刚体的速度和角速度
-    /// </summary>
-    public void OnReturnedToPool()
-    {
-        Target = null;
-        ResetRigidbody();
     }
 
     /// <summary>
@@ -123,62 +114,6 @@ public class EnemyController : MonoBehaviour, IPoolable
         for (int i = 0; i < colliders.Length; i++)
         {
             colliders[i].isTrigger = true;
-        }
-    }
-
-    /// <summary>
-    /// 重置敌人刚体的速度和角速度 将其设置为零 以确保敌人在被复用时不会受到之前的物理状态影响
-    /// </summary>
-    private void ResetRigidbody()
-    {
-        if (rigidBody2D == null)
-        {
-            rigidBody2D = GetComponent<Rigidbody2D>();
-        }
-
-        if (rigidBody2D == null)
-        {
-            return;
-        }
-
-        rigidBody2D.velocity = Vector2.zero;
-        rigidBody2D.angularVelocity = 0f;
-    }
-
-    /// <summary>
-    /// 确保敌人对象上存在Health InjuredEvent DeathEvent组件 
-    /// 如果不存在则添加这些组件 以保证敌人具有生命值和受伤死亡事件的功能
-    /// </summary>
-    private void EnsureRuntimeComponents()
-    {
-        if (GetComponent<InjuredEvent>() == null)
-        {
-            gameObject.AddComponent<InjuredEvent>();
-        }
-
-        if (GetComponent<DeathEvent>() == null)
-        {
-            gameObject.AddComponent<DeathEvent>();
-        }
-
-        if (GetComponent<Health>() == null)
-        {
-            gameObject.AddComponent<Health>();
-        }
-
-        if (GetComponent<EnemyInjuredHandler>() == null)
-        {
-            gameObject.AddComponent<EnemyInjuredHandler>();
-        }
-
-        if (GetComponent<EnemyDeathHandler>() == null)
-        {
-            gameObject.AddComponent<EnemyDeathHandler>();
-        }
-
-        if (GetComponent<EnemyDropHandler>() == null)
-        {
-            gameObject.AddComponent<EnemyDropHandler>();
         }
     }
 }

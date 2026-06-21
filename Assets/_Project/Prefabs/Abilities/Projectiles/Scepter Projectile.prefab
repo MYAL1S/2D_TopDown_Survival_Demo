@@ -4906,7 +4906,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9204619981512475072}
-  - component: {fileID: 7873290270981174806}
   - component: {fileID: 7169233997372664952}
   m_Layer: 8
   m_Name: Scepter Projectile
@@ -4931,25 +4930,6 @@ Transform:
   - {fileID: 4349762855800099803}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7873290270981174806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3857149465084346049}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad779c037e598e44cbce32fbcd01580c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 10
-  spriteRenderer: {fileID: 0}
-  trail: {fileID: 5809077357163940893}
-  lifetime: -1
-  rotatingPart: {fileID: 0}
-  selfDestructOnHit: 0
-  particles: []
 --- !u!58 &7169233997372664952
 CircleCollider2D:
   m_ObjectHideFlags: 0

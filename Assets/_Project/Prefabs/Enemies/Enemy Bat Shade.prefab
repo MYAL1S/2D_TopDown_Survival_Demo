@@ -11,6 +11,18 @@ GameObject:
   - component: {fileID: 7468917078649122424}
   - component: {fileID: 5611959192970924213}
   - component: {fileID: 1982295306974641257}
+  - component: {fileID: 8432361376070393674}
+  - component: {fileID: 7524290080475805868}
+  - component: {fileID: 2450061934273812828}
+  - component: {fileID: 1434832424283374261}
+  - component: {fileID: 4741721176848406805}
+  - component: {fileID: 9127366230825321584}
+  - component: {fileID: 5552065242758015721}
+  - component: {fileID: 4447480986408549735}
+  - component: {fileID: 2172649869705267588}
+  - component: {fileID: 7014322621162220618}
+  - component: {fileID: 486009012603131685}
+  - component: {fileID: 7447472387880755760}
   m_Layer: 7
   m_Name: Enemy Bat Shade
   m_TagString: Untagged
@@ -96,6 +108,163 @@ CircleCollider2D:
   m_Offset: {x: 0.02, y: 0.2}
   serializedVersion: 2
   m_Radius: 0.16
+--- !u!114 &8432361376070393674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e8df2a1c17da084a92cd104245c9232, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7524290080475805868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 354f96500ccd471489340afd76652bf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2450061934273812828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f483b9dbb6a4d349a0e6b9a8a22671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1434832424283374261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 376e96e5704c4902abfd67e63691d345, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4741721176848406805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393bc9254f0b4a36a97c6928895f9f0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemDropGenerator: {fileID: 0}
+--- !u!114 &9127366230825321584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c326d5a17e3f4c2ea35f16a88265d50f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashDuration: 0.08
+--- !u!114 &5552065242758015721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 934778d4b7434a8095813e7e7ee9dbe8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathEffectPrefab: {fileID: 0}
+  destroyDelay: 0.15
+--- !u!114 &4447480986408549735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a7f9765d0d42c68fd66c7535ce0fb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2172649869705267588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b41a45f983b94c6085659472c81b6aa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7014322621162220618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 062f5b3ba9ea5c041948fa574ecfb18e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyConfig: {fileID: 0}
+--- !u!114 &486009012603131685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b8ee7f125cb46448b79836cbad517d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stopDistance: 0.15
+  separationDistance: 0
+  separationWeight: 1.25
+  separationLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maxSeparationChecks: 12
+--- !u!114 &7447472387880755760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 859d67cef73d40b4bc52da9f98a1f67f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7592890133865908067
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,7 +338,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1416399409
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: -20
   m_Sprite: {fileID: 650541049, guid: 13dd5db2cca737f48b925816d8dd5fae, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

@@ -41,7 +41,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4033436380427898713}
-  - component: {fileID: 5387645678758776842}
   - component: {fileID: 7871747670483144526}
   m_Layer: 8
   m_Name: Spike
@@ -66,24 +65,6 @@ Transform:
   - {fileID: 2687125624203450267}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5387645678758776842
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2097197952055582027}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad779c037e598e44cbce32fbcd01580c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 5
-  spriteRenderer: {fileID: 0}
-  trail: {fileID: 0}
-  lifetime: 1
-  rotatingPart: {fileID: 2734157589747986628}
-  selfDestructOnHit: 0
 --- !u!58 &7871747670483144526
 CircleCollider2D:
   m_ObjectHideFlags: 0

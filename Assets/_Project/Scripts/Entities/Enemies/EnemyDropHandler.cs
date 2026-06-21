@@ -2,7 +2,6 @@ using UnityEngine;
 
 #region REQUIRE COMPONENTS
 [RequireComponent(typeof(DeathEvent))]
-[RequireComponent(typeof(EnemyController))]
 #endregion
 [DisallowMultipleComponent]
 public class EnemyDropHandler : MonoBehaviour
@@ -11,12 +10,12 @@ public class EnemyDropHandler : MonoBehaviour
     private ItemDropGenerator itemDropGenerator;
 
     private DeathEvent deathEvent;
-    private EnemyController enemyController;
+    private Enemy enemy;
 
     private void Awake()
     {
         deathEvent = GetComponent<DeathEvent>();
-        enemyController = GetComponent<EnemyController>();
+        enemy = GetComponent<Enemy>();
     }
 
     private void OnEnable()
@@ -31,18 +30,22 @@ public class EnemyDropHandler : MonoBehaviour
 
     private void DeathEvent_OnDeath(DeathEvent eventSource)
     {
-        if (enemyController == null)
+        if (enemy == null)
         {
-            enemyController = GetComponent<EnemyController>();
+            enemy = GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.CacheComponents();
+            }
         }
 
         ItemDropGenerator dropGenerator = ResolveItemDropGenerator();
-        if (dropGenerator == null || enemyController == null)
+        if (dropGenerator == null || enemy == null)
         {
             return;
         }
 
-        dropGenerator.GenerateDrop(transform.position, enemyController.Config);
+        dropGenerator.GenerateDrop(transform.position, enemy.Config);
     }
 
     private ItemDropGenerator ResolveItemDropGenerator()

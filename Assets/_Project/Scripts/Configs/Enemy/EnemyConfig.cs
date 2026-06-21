@@ -26,6 +26,10 @@ public class EnemyConfig : ScriptableObject
     [Tooltip("Enemy hit interval in milliseconds")]
     public int hitIntervalMs;
 
+    [Tooltip("Enemy melee attack range")]
+    [Min(0.01f)]
+    public float attackRange = 0.75f;
+
     [Tooltip("The prefab gameobject for the enemy")]
     public GameObject enemyPrefab;
 
@@ -33,4 +37,6 @@ public class EnemyConfig : ScriptableObject
     public RuntimeAnimatorController animatorController;
 
     public string ResourceId => string.IsNullOrWhiteSpace(resourceId) ? enemyName : resourceId;
+    public float AttackCooldownSeconds => hitIntervalMs > 0 ? hitIntervalMs / 1000f : 1f;
+    public float AttackRange => Mathf.Max(0.01f, attackRange);
 }

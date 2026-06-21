@@ -46,11 +46,11 @@ public class PlayerController : MonoBehaviour
 
             if (isMoving)
             {
-                player.movementByVelocityEvent.CallMovementByVelocityEvent(moveInput.normalized, moveInput.magnitude * moveSpeed);
+                player.MovementByVelocityEvent.CallMovementByVelocityEvent(moveInput.normalized, moveInput.magnitude * moveSpeed);
             }
             else if (wasMoving)
             {
-                player.idleEvent.CallIdleEvent();
+                player.IdleEvent.CallIdleEvent();
             }
 
             wasMoving = isMoving;
@@ -83,9 +83,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void SetPlayerAnimationSpeed()
     {
-        if (player != null && player.animator != null)
+        if (player != null && player.Animator != null)
         {
-            player.animator.speed = moveSpeed / Settings.baseSpeedForPlayerAnimations;
+            player.Animator.speed = moveSpeed / Settings.baseSpeedForPlayerAnimations;
         }
     }
 }

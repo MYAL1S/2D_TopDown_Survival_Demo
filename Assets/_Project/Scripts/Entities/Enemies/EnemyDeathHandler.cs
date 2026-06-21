@@ -15,14 +15,14 @@ public class EnemyDeathHandler : MonoBehaviour
     private DeathEvent deathEvent;
     private Rigidbody2D rigidBody2D;
     private Collider2D[] colliders;
-    private EnemyController enemyController;
+    private Enemy enemy;
     private bool isHandlingDeath;
 
     private void Awake()
     {
         deathEvent = GetComponent<DeathEvent>();
         rigidBody2D = GetComponent<Rigidbody2D>();
-        enemyController = GetComponent<EnemyController>();
+        enemy = GetComponent<Enemy>();
         colliders = GetComponentsInChildren<Collider2D>(true);
     }
 
@@ -48,8 +48,10 @@ public class EnemyDeathHandler : MonoBehaviour
         isHandlingDeath = true;
         StartCoroutine(DeathRoutine());
         Generator generator = Generator.Instance;
-        if (generator != null && generator.SpawnSystem != null && enemyController != null)
-            generator.SpawnSystem.AddToDeadEnemies(enemyController.GetInstanceID());
+        if (generator != null && generator.SpawnSystem != null && enemy != null)
+        {
+            generator.SpawnSystem.AddToDeadEnemies(enemy.GetInstanceID());
+        }
     }
 
     private IEnumerator DeathRoutine()
@@ -87,15 +89,19 @@ public class EnemyDeathHandler : MonoBehaviour
 
     private void ReturnToPool()
     {
-        if (enemyController == null)
+        if (enemy == null)
         {
-            enemyController = GetComponent<EnemyController>();
+            enemy = GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.CacheComponents();
+            }
         }
 
         Generator generator = Generator.Instance;
-        if (generator != null && generator.EnemySpawnManager != null && enemyController != null)
+        if (generator != null && generator.EnemySpawnManager != null && enemy != null)
         {
-            generator.EnemySpawnManager.ReleaseEnemy(enemyController);
+            generator.EnemySpawnManager.ReleaseEnemy(enemy);
             return;
         }
 

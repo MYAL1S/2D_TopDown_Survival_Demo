@@ -30,7 +30,7 @@ public class NearestEnemyDamageTest : MonoBehaviour
             return;
         }
 
-        EnemyController nearestEnemy = FindNearestAliveEnemy(playerObject.transform.position);
+        Enemy nearestEnemy = TargetingSystem.FindNearestAliveEnemy(playerObject.transform.position, 0f);
         if (nearestEnemy == null)
         {
             Log("Could not damage nearest enemy. No alive enemy was found.");
@@ -45,31 +45,6 @@ public class NearestEnemyDamageTest : MonoBehaviour
 
         nearestEnemy.Health.TakeDamage(damageAmount);
         Log($"Damaged nearest enemy '{nearestEnemy.name}' by {damageAmount}. Current health: {nearestEnemy.Health.CurrentHealth}.");
-    }
-
-    private EnemyController FindNearestAliveEnemy(Vector3 playerPosition)
-    {
-        EnemyController[] enemies = FindObjectsOfType<EnemyController>();
-        EnemyController nearestEnemy = null;
-        float nearestSqrDistance = float.MaxValue;
-
-        for (int i = 0; i < enemies.Length; i++)
-        {
-            EnemyController enemy = enemies[i];
-            if (enemy == null || !enemy.IsAlive)
-            {
-                continue;
-            }
-
-            float sqrDistance = (enemy.transform.position - playerPosition).sqrMagnitude;
-            if (sqrDistance < nearestSqrDistance)
-            {
-                nearestSqrDistance = sqrDistance;
-                nearestEnemy = enemy;
-            }
-        }
-
-        return nearestEnemy;
     }
 
     private void Log(string message)

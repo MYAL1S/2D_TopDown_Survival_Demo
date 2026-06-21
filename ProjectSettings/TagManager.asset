@@ -47,6 +47,9 @@ TagManager:
   - name: Shadows
     uniqueID: 1233491025
     locked: 0
+  - name: Projectiles
+    uniqueID: 3336172999
+    locked: 0
   - name: Enemy
     uniqueID: 1416399409
     locked: 0

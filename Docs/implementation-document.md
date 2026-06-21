@@ -20,7 +20,7 @@
 | M1 工程初始化 | 已完成 | 创建 Unity 工程、目录结构、基础场景 |
 | M2 玩家移动和摄像机 | 已完成 | WASD 移动、摄像机跟随 |
 | M3 敌人生成和追踪 | 已完成 | 屏幕外刷怪、敌人追踪玩家 |
-| M4 自动攻击和战斗 | 未开始 | 自动索敌、攻击、伤害、死亡 |
+| M4 自动攻击和战斗 | 已完成 | 自动索敌、攻击、伤害、死亡 |
 | M5 掉落和拾取 | 未开始 | 敌人死亡掉落、玩家拾取 |
 | M6 Buff/Debuff/AOE | 未开始 | 状态效果和范围效果 |
 | M7 UI、调试和优化 | 未开始 | UI、对象池、调试信息、性能优化 |
@@ -493,8 +493,140 @@ SpawnSystem 只维护 activeEnemies 字典和 deadEnemyIds 列表。
 
 实际实现记录：
 
+状态：已完成
+
+### 实际创建/使用的脚本
+
+| 脚本 | 实际职责 |
+| --- | --- |
+| PlayerWeaponSystem.cs | 玩家武器系统，维护当前持有的多把武器，逐把处理冷却、自动索敌、触发攻击事件，并管理发射物对象池 |
+| WeaponRuntimeInstance.cs | 单把武器的运行时状态，保存武器配置、冷却计时、等级和启用状态 |
+| IWeaponInventory.cs | 武器库存接口，提供 ActiveWeapons、AddWeapon、RemoveWeapon、HasWeapon 等外部入口 |
+| WeaponConfig.cs | 武器 ScriptableObject 配置，保存基础数值、发射物引用以及攻击/伤害/命中策略引用 |
+| WeaponAttackStrategy.cs | 武器攻击策略基类，定义武器如何发起攻击 |
+| DirectWeaponAttackStrategy.cs | 直接攻击策略，不创建发射物，直接按伤害策略结算伤害 |
+| ProjectileWeaponAttackStrategy.cs | 发射物攻击策略，生成发射物；当未配置发射物预制体时可退化为直接伤害 |
+| WeaponDamageStrategy.cs | 武器伤害策略基类，定义单体、范围等伤害形状 |
+| SingleTargetDamageStrategy.cs | 单体伤害策略，对命中目标造成伤害 |
+| AreaDamageStrategy.cs | 范围伤害策略，通过 TargetingSystem 收集范围内敌人并造成伤害 |
+| ProjectileHitStrategy.cs | 发射物命中策略基类，定义命中后是否追踪、是否只接受初始目标、是否要求目标存活 |
+| DestroyOnHitProjectileHitStrategy.cs | 命中后造成伤害并回收发射物 |
+| PierceUntilRangeProjectileHitStrategy.cs | 发射物在射程内持续飞行，命中敌人后按间隔造成伤害，不立即回收 |
+| ProjectileController.cs | 单个发射物运行时组件，负责移动、触发检测、射程回收和将命中交给 ProjectileHitStrategy |
+| WeaponAttackServices.cs | 提供给攻击策略使用的运行时服务，包括发射物生成和伤害应用入口 |
+| WeaponDamageApplier.cs | 通用伤害应用工具，供直接攻击、发射物和范围伤害复用 |
+| TargetingSystem.cs | 敌人注册、空间网格索引、最近敌人查询和范围敌人收集 |
+| AttackEvent.cs | 通用攻击事件组件，玩家和敌人攻击都通过该事件解耦 |
+| AttackContext.cs | 攻击上下文，携带攻击者、目标、起点、方向、伤害、范围、发射物和武器配置 |
+| CombatSystem.cs | 通用伤害入口，调用 Health 执行扣血 |
+| Health.cs | 通用生命组件，处理生命值、防御、受伤事件和死亡事件 |
+| PlayerDamageReceiver.cs | 玩家受伤入口，处理受击扣血和短暂无敌时间 |
+| PlayerInjuredHandler.cs | 玩家受伤表现处理 |
+| PlayerDeathHandler.cs | 玩家死亡表现和组件禁用处理 |
+| EnemyAttackSystem.cs | 敌人攻击系统，基于碰撞中的玩家、攻击范围和攻击冷却触发攻击事件 |
+| EnemyMeleeAttackHandler.cs | 敌人近战攻击处理器，监听敌人 AttackEvent 并对玩家造成伤害 |
+| EnemyAISystem.cs | 敌人追踪和分离移动，分离逻辑使用 TargetingSystem 空间网格并错峰低频计算 |
+
+### 实际使用的配置和资源
+
+| 资源 | 说明 |
+| --- | --- |
+| WeaponConfig_MagicBolt.asset | Magic Bolt 武器配置，使用发射物攻击、单体伤害、命中销毁策略 |
+| WeaponConfig_Star.asset | Star 武器配置，使用发射物攻击、单体伤害、穿透到射程结束策略 |
+| WeaponAttackStrategy_Projectile.asset | 发射物攻击策略资源 |
+| WeaponAttackStrategy_Direct.asset | 直接攻击策略资源 |
+| WeaponDamageStrategy_SingleTarget.asset | 单体伤害策略资源 |
+| WeaponDamageStrategy_Area.asset | 范围伤害策略资源 |
+| ProjectileHitStrategy_DestroyOnHit.asset | 命中销毁策略资源 |
+| ProjectileHitStrategy_PierceUntilRange.asset | 穿透到射程结束策略资源 |
+| Mage.prefab / Wizard.prefab | 挂载 PlayerWeaponSystem，通过 startingWeaponConfigs 配置默认武器 |
+| Player Layer | 玩家层级，供敌人攻击触发过滤 |
+| Enemy Layer | 敌人层级，供子弹命中和敌人分离过滤/索引使用 |
+
+### 实际实现方式
+
+1. `PlayerWeaponSystem` 作为玩家武器系统入口，不再只维护单把武器，而是维护 `List<WeaponRuntimeInstance>`。
+2. 每把武器都有独立 `CooldownTimer`，`PlayerWeaponSystem.Update()` 遍历所有启用武器，冷却结束后尝试攻击。
+3. 武器系统通过 `TargetingSystem.FindNearestAliveEnemy` 查找范围内最近敌人。
+4. 找到目标后构造 `AttackContext`，并通过玩家身上的 `AttackEvent` 广播攻击事件。
+5. `PlayerWeaponSystem` 监听自身 `AttackEvent`，从 `AttackContext.WeaponConfig` 取出 `WeaponAttackStrategy` 并执行。
+6. 武器行为完全由策略组合决定：攻击方式由 `WeaponAttackStrategy` 决定，伤害形状由 `WeaponDamageStrategy` 决定，发射物命中行为由 `ProjectileHitStrategy` 决定。
+7. `ProjectileWeaponAttackStrategy` 负责请求 `PlayerWeaponSystem` 生成发射物。
+8. `PlayerWeaponSystem` 按发射物 prefab 维护多个 `ComponentPool<ProjectileController>`，避免不同武器发射物共用同一个池。
+9. `ProjectileController` 只负责移动、触发检测、射程回收和把命中交给 `ProjectileHitStrategy`，不再通过枚举判断命中行为。
+10. 子弹命中前先过滤 `Enemy Layer`，再执行 `GetComponentInParent<Enemy>`，减少无效触发处理。
+11. 敌人攻击前先过滤 `Player Layer`，再执行 `GetComponentInParent<Player>`，减少无效触发处理。
+12. 敌人攻击通过 `EnemyAttackSystem` 判断冷却、碰撞玩家和攻击距离，满足条件时触发敌人 `AttackEvent`。
+13. `EnemyMeleeAttackHandler` 监听敌人攻击事件，对玩家调用 `PlayerDamageReceiver.TryTakeDamage`。
+14. 玩家受伤由 `PlayerDamageReceiver` 统一处理，并在受伤后进入短暂无敌时间。
+15. 玩家和敌人都复用 `Health / InjuredEvent / DeathEvent`，受伤和死亡表现由各自 handler 监听处理。
+16. `TargetingSystem` 维护已注册敌人的列表和空间网格索引，同一帧最多重建一次。
+17. `TargetingSystem` 提供最近敌人查询和范围敌人收集，武器索敌、范围伤害和敌人分离都复用该入口。
+18. 敌人分离不再使用每敌人每 FixedUpdate 的 `Physics2D.OverlapCircleNonAlloc`。
+19. `EnemyAISystem` 以 `separationUpdateInterval` 低频计算分离方向，并按 instance id 错峰，避免所有敌人同帧查询。
+20. 敌人分离候选来自 `TargetingSystem.CollectAliveEnemiesInRange` 的空间网格结果，并通过 `maxSeparationChecks` 限制最大检查数量。
+
+### 和原计划不一致的地方
+
+1. 原计划中的 `WeaponRuntime.cs` 已被 `PlayerWeaponSystem.cs` 取代，实际实现支持多武器同时持有和独立冷却，更符合割草游戏的武器叠加模式。
+2. 原计划中的 `ProjectileConfig.cs` 没有单独实现，发射物相关数值当前集中在 `WeaponConfig` 中，发射物行为通过策略资源扩展。
+3. 原计划只描述 Magic Bolt 单武器，实际实现已支持多武器库存、添加/移除武器、不同发射物和不同命中行为。
+4. 原计划未包含策略模式，实际将攻击方式、伤害形状和发射物命中行为拆成 ScriptableObject 策略。
+5. 原计划未包含玩家健康系统，实际已补全玩家受伤、无敌时间、受伤事件和死亡事件。
+6. 原计划未包含敌人攻击，实际已实现敌人攻击冷却、攻击范围判断、碰撞玩家后触发攻击事件和近战扣血。
+7. 原计划未包含大规模敌人索敌性能优化，实际通过 `TargetingSystem` 空间网格降低最近敌人查询、范围伤害和分离查询的开销。
+8. 原计划未包含 Layer 过滤，实际给敌人攻击和子弹命中加入 Player/Enemy Layer 过滤，减少无效 trigger 回调处理。
+
+### 验收结果
+
+1. 玩家无需按键即可自动攻击范围内最近敌人。
+2. 玩家可以同时持有多把武器，每把武器独立冷却并自动攻击。
+3. 外部系统可以通过 `IWeaponInventory` / `PlayerWeaponSystem` 添加、移除和查询玩家武器。
+4. 武器攻击方式、伤害形状和发射物命中行为均可通过 ScriptableObject 策略组合配置。
+5. Magic Bolt 可以发射命中后销毁的单体子弹。
+6. Star 可以发射穿透型子弹，在超出射程前持续存在并对路径敌人造成伤害。
+7. 子弹命中敌人后可以通过 `CombatSystem / Health` 正确造成伤害。
+8. 敌人血量归零后会触发死亡流程，并由 M3 的死亡回收链路处理。
+9. 敌人碰撞玩家且冷却结束、距离满足攻击范围时可以攻击玩家。
+10. 玩家受伤后会进入短暂无敌时间，避免同一段碰撞中被连续高频扣血。
+11. 敌人分离逻辑不再使用每敌人每物理帧物理查询，敌人数量较多时性能风险降低。
+
+### 实现过程中遇到的问题，以及解决方案
+
+1. 单武器结构不适合割草游戏的武器叠加。
 ```text
-待 M4 完成后补充。
+将 WeaponRuntime / PlayerProjectileAttackHandler 收拢为 PlayerWeaponSystem。
+使用 WeaponRuntimeInstance 保存每把武器的运行时状态。
+PlayerWeaponSystem 维护 activeWeapons 列表，每把武器独立冷却和攻击。
+```
+
+2. 武器逻辑最初仍残留枚举分支，扩展性不足。
+```text
+移除 WeaponAttackType、WeaponDamageShape、ProjectileHitBehavior 等行为枚举。
+将攻击方式、伤害形状、发射物命中行为分别拆成策略类。
+WeaponConfig 只保存基础数值和策略引用，不再由调用层硬编码行为分支。
+```
+
+3. 发射物对象池最初只适合单一 projectile prefab。
+```text
+PlayerWeaponSystem 改为按 projectile prefab 维护多个 ComponentPool。
+activeProjectilePools 记录每个已发射 ProjectileController 对应的池。
+回收时按实际池归还，避免多武器发射物串池。
+```
+
+4. 大量敌人时每个敌人每 FixedUpdate 分离查询开销过高。
+```text
+移除 EnemyAISystem 中的 Physics2D.OverlapCircleNonAlloc 分离查询。
+复用 TargetingSystem 的敌人注册和空间网格结果。
+分离方向低频缓存，并按 instance id 错峰计算。
+使用 maxSeparationChecks 限制每个敌人的分离候选数量。
+```
+
+5. Trigger 回调中存在无效组件查找。
+```text
+敌人攻击只处理 Player Layer。
+子弹命中只处理 Enemy Layer。
+先做 LayerMask 过滤，再调用 GetComponentInParent，减少无效查找。
 ```
 
 ## 10. M5 掉落和拾取实现计划

@@ -10,14 +10,14 @@ using UnityEngine;
 public class EnemySpawnManager : MonoBehaviour
 {
     // 按敌人配置维护多个独立的对象池
-    private readonly Dictionary<string, ComponentPool<EnemyController>> enemyPools = new Dictionary<string, ComponentPool<EnemyController>>();
+    private readonly Dictionary<string, ComponentPool<Enemy>> enemyPools = new Dictionary<string, ComponentPool<Enemy>>();
     // 所有对象池的父节点 便于层级管理
     private Transform poolRoot;
 
     /// <summary>
     /// 使用默认朝向和无父对象生成敌人
     /// </summary>
-    public EnemyController SpawnEnemy(EnemyConfig config, Vector3 position, Transform target)
+    public Enemy SpawnEnemy(EnemyConfig config, Vector3 position, Transform target)
     {
         return SpawnEnemy(config, position, Quaternion.identity, null, target);
     }
@@ -25,7 +25,7 @@ public class EnemySpawnManager : MonoBehaviour
     /// <summary>
     /// 按指定位置、旋转和父对象从对象池获取敌人 并初始化其配置与追踪目标
     /// </summary>
-    public EnemyController SpawnEnemy(EnemyConfig config, Vector3 position, Quaternion rotation, Transform parent, Transform target)
+    public Enemy SpawnEnemy(EnemyConfig config, Vector3 position, Quaternion rotation, Transform parent, Transform target)
     {
         if (config == null || config.enemyPrefab == null)
         {
@@ -33,50 +33,50 @@ public class EnemySpawnManager : MonoBehaviour
             return null;
         }
 
-        EnemyController enemyController = GetPool(config).Get(position, rotation, parent);
-        enemyController.Initialize(config, target);
-        return enemyController;
+        Enemy enemy = GetPool(config).Get(position, rotation, parent);
+        enemy.Initialize(config, target);
+        return enemy;
     }
 
     /// <summary>
     /// 将敌人归还到对象池
     /// 若敌人配置丢失或无对应的池 则直接禁用
     /// </summary>
-    public void ReleaseEnemy(EnemyController enemyController)
+    public void ReleaseEnemy(Enemy enemy)
     {
-        if (enemyController == null)
+        if (enemy == null)
         {
             return;
         }
 
-        EnemyConfig config = enemyController.Config;
+        EnemyConfig config = enemy.Config;
         if (config == null)
         {
-            enemyController.gameObject.SetActive(false);
-            enemyController.transform.SetParent(GetPoolRoot());
+            enemy.gameObject.SetActive(false);
+            enemy.transform.SetParent(GetPoolRoot());
             return;
         }
 
         string poolKey = GetPoolKey(config);
-        if (enemyPools.TryGetValue(poolKey, out ComponentPool<EnemyController> pool))
+        if (enemyPools.TryGetValue(poolKey, out ComponentPool<Enemy> pool))
         {
-            pool.Release(enemyController);
+            pool.Release(enemy);
             return;
         }
 
-        enemyController.gameObject.SetActive(false);
-        enemyController.transform.SetParent(GetPoolRoot());
+        enemy.gameObject.SetActive(false);
+        enemy.transform.SetParent(GetPoolRoot());
     }
 
     /// <summary>
     /// 获取或创建指定配置对应的对象池
     /// </summary>
-    private ComponentPool<EnemyController> GetPool(EnemyConfig config)
+    private ComponentPool<Enemy> GetPool(EnemyConfig config)
     {
         string poolKey = GetPoolKey(config);
-        if (!enemyPools.TryGetValue(poolKey, out ComponentPool<EnemyController> pool))
+        if (!enemyPools.TryGetValue(poolKey, out ComponentPool<Enemy> pool))
         {
-            pool = new ComponentPool<EnemyController>(
+            pool = new ComponentPool<Enemy>(
                 config.enemyPrefab,
                 GetPoolRoot(),
                 EnsureEnemyRuntimeComponents);
@@ -112,23 +112,17 @@ public class EnemySpawnManager : MonoBehaviour
     /// <summary>
     /// 确保敌人物体具备运行所需的所有基础组件
     /// </summary>
-    private static EnemyController EnsureEnemyRuntimeComponents(GameObject enemyObject)
+    private static Enemy EnsureEnemyRuntimeComponents(GameObject enemyObject)
     {
         Rigidbody2D rigidBody2D = EnsureComponent<Rigidbody2D>(enemyObject);
         ConfigureRigidbody(rigidBody2D);
         ConfigureColliders(enemyObject);
 
-        EnsureComponent<InjuredEvent>(enemyObject);
-        EnsureComponent<DeathEvent>(enemyObject);
-        EnsureComponent<Health>(enemyObject);
-        EnemyController enemyController = EnsureComponent<EnemyController>(enemyObject);
-        EnsureComponent<EnemyAISystem>(enemyObject);
+        Enemy enemy = EnsureComponent<Enemy>(enemyObject);
+        enemy.EnsureRuntimeComponents();
+        enemy.CacheComponents();
 
-        EnsureComponent<EnemyInjuredHandler>(enemyObject);
-        EnsureComponent<EnemyDeathHandler>(enemyObject);
-        EnsureComponent<EnemyDropHandler>(enemyObject);
-
-        return enemyController;
+        return enemy;
     }
 
     /// <summary>
