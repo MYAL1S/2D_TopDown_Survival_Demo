@@ -92,3 +92,4 @@ MonoBehaviour:
   maxSpawnPerFrame: 12
   spawnMargin: 1.5
   spawnZ: 0
+  spawnZOffset: 0.1

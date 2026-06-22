@@ -18,5 +18,8 @@ MonoBehaviour:
   speed: 1.8
   atk: 2
   def: 0
+  hitIntervalMs: 0
+  attackRange: 0.75
   enemyPrefab: {fileID: 1090571174421192766, guid: bdb159c5340f537448bf478665384e2d, type: 3}
   animatorController: {fileID: 9100000, guid: d4f41d5221707f0468954ef32f4f85d6, type: 2}
+  dropTableConfig: {fileID: 11400000, guid: d1000000000000000000000000000003, type: 2}
