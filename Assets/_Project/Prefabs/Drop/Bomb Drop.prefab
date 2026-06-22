@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3947835711299630527}
-  - component: {fileID: 3507276078244210321}
   m_Layer: 0
   m_Name: Bomb Drop
   m_TagString: Untagged
@@ -33,23 +32,6 @@ Transform:
   - {fileID: 3652100560546642678}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3507276078244210321
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3492111080169054687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3076046cbdd3a3b4faa68f2b77715d61, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pickUpParticle: {fileID: 2840114444586249407, guid: 922d1585be982314db02026647627d7c,
-    type: 3}
-  particleDisableDelay: 1
-  pickUpSoundName: Bomb Pick Up
-  damageMultiplier: 100
 --- !u!1 &4536960357966085956
 GameObject:
   m_ObjectHideFlags: 0

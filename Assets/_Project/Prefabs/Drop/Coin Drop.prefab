@@ -93,7 +93,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5325722233228600406}
-  - component: {fileID: 1415614019777423510}
   m_Layer: 0
   m_Name: Coin Drop
   m_TagString: Untagged
@@ -117,20 +116,3 @@ Transform:
   - {fileID: 6460357404879883426}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1415614019777423510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7999236800876406289}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d6cfc9e852a7324abe98f964e0b7fc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pickUpParticle: {fileID: 2840114444586249407, guid: eb3792328ae5590498b0f07e79b45aa7,
-    type: 3}
-  particleDisableDelay: 1
-  pickUpSoundName: Coin Pick Up
-  amount: 10

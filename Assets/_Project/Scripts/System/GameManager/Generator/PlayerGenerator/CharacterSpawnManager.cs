@@ -63,6 +63,12 @@ public class CharacterSpawnManager : MonoBehaviour
             weaponSystem.InitializeStartingWeapon(config.StartingWeaponConfig);
         }
 
+        PlayerPickupSystem pickupSystem = playerObject.GetComponent<PlayerPickupSystem>();
+        if (pickupSystem != null)
+        {
+            pickupSystem.Initialize(config);
+        }
+
         return playerObject.GetComponent<Player>();
     }
 

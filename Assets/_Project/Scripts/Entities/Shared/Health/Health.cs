@@ -78,6 +78,34 @@ public class Health : MonoBehaviour
     }
 
     /// <summary>
+    /// 治疗方法
+    /// </summary>
+    /// <param name="amount">治疗的血量</param>
+    /// <returns></returns>
+    public float Heal(float amount)
+    {
+        // 只有当生命值组件处于存活状态时才允许治疗
+        if (!IsAlive)
+        {
+            return 0f;
+        }
+
+        float healAmount = Mathf.Max(0f, amount);
+        // 如果治疗量小于等于 0 或者当前生命值已经满了 就不进行治疗
+        if (healAmount <= 0f || CurrentHealth >= maxHealth)
+        {
+            return 0f;
+        }
+
+        // 计算实际治疗量 
+        float previousHealth = CurrentHealth;
+        // 将当前生命值增加治疗量但不超过最大生命值 
+        CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + healAmount);
+        // 返回实际治疗的血量
+        return CurrentHealth - previousHealth;
+    }
+
+    /// <summary>
     /// 提供一个直接杀死生命值组件的方法 
     /// 将当前生命值设置为 0 并触发死亡事件
     /// </summary>

@@ -22,6 +22,8 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerInjuredHandler))]
 [RequireComponent(typeof(PlayerDeathHandler))]
 [RequireComponent(typeof(PlayerWeaponSystem))]
+[RequireComponent(typeof(PlayerPickupSystem))]
+[RequireComponent(typeof(PlayerProgress))]
 #endregion
 [DisallowMultipleComponent]
 public class Player : MonoBehaviour
@@ -43,6 +45,8 @@ public class Player : MonoBehaviour
     public PlayerInjuredHandler PlayerInjuredHandler { get; private set; }
     public PlayerDeathHandler PlayerDeathHandler { get; set; }
     public PlayerWeaponSystem PlayerWeaponSystem { get; private set; }
+    public PlayerPickupSystem PlayerPickupSystem { get; private set; }
+    public PlayerProgress PlayerProgress { get; private set; }
 
 
     void Awake()
@@ -71,6 +75,8 @@ public class Player : MonoBehaviour
         EnsureComponent<PlayerInjuredHandler>();
         EnsureComponent<PlayerDeathHandler>();
         EnsureComponent<PlayerWeaponSystem>();
+        EnsureComponent<PlayerPickupSystem>();
+        EnsureComponent<PlayerProgress>();
     }
 
     private void EnsureComponent<T>() where T : Component
@@ -115,6 +121,10 @@ public class Player : MonoBehaviour
             PlayerDeathHandler = GetComponent<PlayerDeathHandler>();
         if (PlayerWeaponSystem == null)
             PlayerWeaponSystem = GetComponent<PlayerWeaponSystem>();
+        if (PlayerPickupSystem == null)
+            PlayerPickupSystem = GetComponent<PlayerPickupSystem>();
+        if (PlayerProgress == null)
+            PlayerProgress = GetComponent<PlayerProgress>();
     }
 
     public void SetAllComponentsEnabled(bool enabled)
@@ -149,5 +159,9 @@ public class Player : MonoBehaviour
             PlayerDeathHandler.enabled = enabled;
         if (PlayerWeaponSystem != null)
             PlayerWeaponSystem.enabled = enabled;
+        if (PlayerPickupSystem != null)
+            PlayerPickupSystem.enabled = enabled;
+        if (PlayerProgress != null)
+            PlayerProgress.enabled = enabled;
     }
 }

@@ -18,6 +18,9 @@ MonoBehaviour:
   runtimeAnimatorController: {fileID: 9100000, guid: 58a5de292215c984abd290eb52f58e48, type: 2}
   baseSpeed: 4
   startingWeaponConfig: {fileID: 11400000, guid: 75f40562637742d59c3029d3ed192b4b, type: 2}
-  maxHealth: 100
+  maxHealth: 40
   defense: 0
   injuredInvincibilityDuration: 0.75
+  pickupRadius: 2.5
+  pickupCollectDistance: 0.35
+  pickupAttractSpeed: 8

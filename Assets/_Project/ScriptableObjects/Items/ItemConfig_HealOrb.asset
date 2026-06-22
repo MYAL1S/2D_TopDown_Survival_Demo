@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1000000000000000000000000000002, type: 3}
+  m_Name: ItemConfig_HealOrb
+  m_EditorClassIdentifier: 
+  resourceId: heal_orb
+  itemName: Heal Orb
+  effectType: 1
+  effectAmount: 15
+  pickupPrefab: {fileID: 5357998141908448301, guid: 77f2b74f802e4a048b4767a694018f7a, type: 3}
+  pickupEffectPrefab: {fileID: 2840114444586249407, guid: c1fb294911b88884d920f289ad79a4bb, type: 3}

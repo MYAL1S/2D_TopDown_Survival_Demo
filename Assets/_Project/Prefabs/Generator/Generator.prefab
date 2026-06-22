@@ -160,6 +160,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6ddc2f9a8b04d7aa938f2cd09d94b5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultDropTableConfig: {fileID: 11400000, guid: d1000000000000000000000000000003, type: 2}
+  spawnScatterRadius: 0.35
 --- !u!1 &6325159142087645498
 GameObject:
   m_ObjectHideFlags: 0

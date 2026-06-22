@@ -39,10 +39,26 @@ public class PlayerConfig : ScriptableObject
     [Min(0f)]
     private float injuredInvincibilityDuration = 0.75f;
 
+    [Header("PLAYER PICKUP DETAILS")]
+    [SerializeField]
+    [Min(0.01f)]
+    private float pickupRadius = 2.5f;
+
+    [SerializeField]
+    [Min(0.01f)]
+    private float pickupCollectDistance = 0.35f;
+
+    [SerializeField]
+    [Min(0f)]
+    private float pickupAttractSpeed = 8f;
+
     public string ResourceId => string.IsNullOrWhiteSpace(resourceId) ? playerCharacterName : resourceId;
     public float MoveSpeed => baseSpeed;
     public WeaponConfig StartingWeaponConfig => startingWeaponConfig;
     public float MaxHealth => maxHealth;
     public float Defense => defense;
     public float InjuredInvincibilityDuration => injuredInvincibilityDuration;
+    public float PickupRadius => pickupRadius;
+    public float PickupCollectDistance => pickupCollectDistance;
+    public float PickupAttractSpeed => pickupAttractSpeed;
 }

@@ -93,7 +93,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6876264855170654877}
-  - component: {fileID: 4057186093528025337}
   m_Layer: 0
   m_Name: Food Drop
   m_TagString: Untagged
@@ -117,20 +116,3 @@ Transform:
   - {fileID: 6410118526436518001}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4057186093528025337
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5357998141908448301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8751ba8d35ce9634f9495c4269a28379, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pickUpParticle: {fileID: 2840114444586249407, guid: c1fb294911b88884d920f289ad79a4bb,
-    type: 3}
-  particleDisableDelay: 1
-  pickUpSoundName: Heal Pick Up
-  hp: 20

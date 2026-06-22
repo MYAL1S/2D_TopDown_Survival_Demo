@@ -21,7 +21,7 @@
 | M2 玩家移动和摄像机 | 已完成 | WASD 移动、摄像机跟随 |
 | M3 敌人生成和追踪 | 已完成 | 屏幕外刷怪、敌人追踪玩家 |
 | M4 自动攻击和战斗 | 已完成 | 自动索敌、攻击、伤害、死亡 |
-| M5 掉落和拾取 | 未开始 | 敌人死亡掉落、玩家拾取 |
+| M5 掉落和拾取 | 已完成 | 敌人死亡掉落、玩家吸附拾取、经验和回血效果 |
 | M6 Buff/Debuff/AOE | 未开始 | 状态效果和范围效果 |
 | M7 UI、调试和优化 | 未开始 | UI、对象池、调试信息、性能优化 |
 | M8 文档整理和演示准备 | 未开始 | README、截图、演示说明 |
@@ -669,9 +669,159 @@ EnemyKilledEvent
 
 实际实现记录：
 
+状态：已完成
+
+### 10.1 最终实现范围
+
+M5 已实现敌人死亡掉落、玩家范围检测、掉落物吸附、拾取效果执行、掉落物对象池回收和拾取特效对象池回收。
+
+当前实现包含两类初始物品：
+
+| 物品 | 配置资源 | 掉落预制体 | 拾取效果 |
+| --- | --- | --- | --- |
+| XP Orb | `ItemConfig_XPOrb` | `Small Gem.prefab` | 增加经验 |
+| Score Orb | `ItemConfig_Score Orb` | `Big Gem.prefab` | 增加分数 |
+| Heal Orb | `ItemConfig_HealOrb` | `Food Drop.prefab` | 回复玩家生命值 |
+
+### 10.2 新增和调整脚本
+
+| 脚本 | 类型 | 职责 |
+| --- | --- | --- |
+| `ItemEffectType.cs` | 枚举 | 定义物品效果类型，目前支持 `Experience` 和 `Heal` |
+| `ItemConfig.cs` | ScriptableObject | 定义物品 ID、名称、效果类型、效果数值、掉落预制体和拾取特效预制体 |
+| `DropTableEntry.cs` | 配置数据 | 定义单个掉落项的物品、掉落概率、最小数量和最大数量 |
+| `ItemDropRoll.cs` | 运行时结果 | 表示一次掉落表随机后的物品和数量 |
+| `DropTableConfig.cs` | ScriptableObject | 保存掉落项列表，并根据概率生成掉落结果 |
+| `ItemDropGenerator.cs` | 生成系统 | 根据敌人配置或默认掉落表生成拾取物，并管理拾取物对象池 |
+| `PickupController.cs` | 运行时实体 | 表示单个掉落物，处理初始化、吸附移动、触发拾取和回收 |
+| `PickupSystem.cs` | 静态系统 | 维护活跃掉落物列表，执行物品效果，管理拾取特效对象池 |
+| `PickupEffectController.cs` | 特效实体 | 控制拾取特效播放，并在播放结束后归还对象池 |
+| `PlayerPickupSystem.cs` | 玩家系统 | 根据玩家拾取半径扫描活跃掉落物，触发吸附或直接拾取 |
+| `PlayerProgress.cs` | 玩家数据 | 保存经验和分数，并暴露变化事件供后续 UI 接入 |
+
+既有脚本调整：
+
+1. `EnemyConfig` 增加 `DropTableConfig` 引用，用于配置敌人专属掉落表。
+2. `PlayerConfig` 增加拾取半径、收集距离和吸附速度。
+3. `Player` 增加 `PlayerPickupSystem` 和 `PlayerProgress` 组件依赖及缓存。
+4. `CharacterSpawnManager` 在生成玩家后初始化 `PlayerPickupSystem`。
+5. `Health` 增加 `Heal` 方法，用于治疗类物品恢复生命值。
+
+### 10.3 资源配置
+
+新增资源目录：
+
 ```text
-待 M5 完成后补充。
+Assets/_Project/ScriptableObjects/Items
+Assets/_Project/ScriptableObjects/DropTables
 ```
+
+已创建默认资源：
+
+| 资源 | 说明 |
+| --- | --- |
+| `ItemConfig_XPOrb.asset` | XP 掉落物配置，效果数值为经验增加量 |
+| `ItemConfig_HealOrb.asset` | 治疗掉落物配置，效果数值为回血量 |
+|  `ItemConfig_Score Orb` | Score 掉落物配置 增加分数 |
+| `DropTableConfig_Default.asset` | 默认掉落表，包含 XP Orb 和低概率 Heal Orb，必定掉落Score Orb |
+
+`Generator.prefab` 上的 `ItemDropGenerator` 已配置 `DropTableConfig_Default` 作为默认掉落表。
+单个敌人可以通过 `EnemyConfig.DropTableConfig` 覆盖默认掉落表；若敌人未配置专属掉落表，则自动使用默认掉落表。
+
+### 10.4 运行流程
+
+最终运行流程如下：
+
+```text
+敌人 Health 归零
+  -> DeathEvent.CallDeathEvent
+  -> EnemyDropHandler 监听死亡事件
+  -> ItemDropGenerator.GenerateDrop(position, enemyConfig)
+  -> 读取 enemyConfig.DropTableConfig 或默认掉落表
+  -> DropTableConfig.RollDrops 计算掉落结果
+  -> ItemDropGenerator 从拾取物对象池获取 PickupController
+  -> PickupController 初始化物品配置、数量和回收 owner
+  -> PickupController 注册到 PickupSystem.ActivePickups
+  -> PlayerPickupSystem 每帧扫描 PickupSystem.ActivePickups
+  -> 进入拾取半径后 PickupController.BeginAttract
+  -> 进入收集距离后 PickupController.TryCollect
+  -> PickupSystem.CompletePickup
+  -> PickupSystem.ApplyPickup 执行经验或回血
+  -> PickupSystem 从拾取特效对象池获取 PickupEffectController
+  -> PickupEffectController 在玩家当前位置播放粒子
+  -> ItemDropGenerator 回收 PickupController
+  -> PickupEffectController 播放结束后归还特效对象池
+```
+
+### 10.5 对象池策略
+
+M5 中有两类高频对象使用对象池：
+
+1. 掉落物对象池：由 `ItemDropGenerator` 按 `ItemConfig.ResourceId` 维护，每种物品一个 `ComponentPool<PickupController>`。
+2. 拾取特效对象池：由 `PickupSystem` 按拾取特效 prefab 维护，每种特效一个 `ComponentPool<PickupEffectController>`。
+
+对象池接入原因：
+
+1. 敌人死亡和玩家拾取在生存类玩法中属于高频行为。
+2. 掉落物和拾取粒子如果频繁 `Instantiate` / `Destroy`，容易造成 GC 和帧波动。
+3. 当前项目 M3 已提前引入通用 `ComponentPool<T>`，M5 延续该实现方式。
+
+### 10.6 职责边界
+
+最终职责拆分如下：
+
+1. `PickupController` 只负责单个掉落物的运行时状态，不保存全局掉落物列表。
+2. `PickupSystem` 维护全局活跃掉落物列表，统一提供注册、注销和查询入口。
+3. `PlayerPickupSystem` 只负责玩家侧检测逻辑，不直接拥有掉落物生命周期。
+4. `ItemDropGenerator` 只负责掉落生成和掉落物对象池回收。
+5. `PickupSystem` 负责物品效果和拾取特效播放，因为二者都发生在“拾取完成”这一统一时刻。
+
+这样可以避免单个实体组件承担全局管理职责，也方便后续 M7 UI 或调试工具读取当前活跃掉落物。
+
+### 10.7 拾取效果
+
+当前 `PickupSystem.ApplyPickup` 支持：
+
+| 效果类型 | 行为 |
+| --- | --- |
+| `Experience` | 调用 `PlayerProgress.AddExperience`，同时增加经验和分数 |
+| `Heal` | 调用 `Health.Heal`，在最大生命值内回复玩家生命 |
+
+拾取特效播放规则：
+
+1. 拾取完成后在玩家当前位置播放，而不是在掉落物原始位置播放。
+2. 特效对象从拾取特效对象池获取。
+3. `PickupEffectController` 会主动 `Clear` 并 `Play` 粒子系统。
+4. 粒子播放结束后，特效对象归还对象池。
+
+### 10.8 验收结果
+
+| 验收项 | 结果 |
+| --- | --- |
+| 敌人死亡后生成掉落物 | 通过 |
+| 玩家进入拾取半径后掉落物吸附 | 通过 |
+| 玩家进入收集距离后完成拾取 | 通过 |
+| XP Orb 增加经验和分数 | 通过 |
+| Heal Orb 回复玩家生命值 | 通过 |
+| 掉落物拾取后回收到对象池 | 通过 |
+| 拾取特效在玩家位置播放 | 通过 |
+| 拾取特效播放结束后回收到对象池 | 通过 |
+
+### 10.9 和原计划的差异
+
+原计划中的 `DropSystem.cs` 没有单独创建，实际由 `ItemDropGenerator` 承担掉落生成职责。
+这样做的原因是项目中已经存在 `Generator` 聚合入口和 `ItemDropGenerator` 预留脚本，直接补完该脚本可以保持当前生成器结构一致。
+
+原计划中的 `PickupSystem.cs` 保留为静态系统，负责活跃掉落物列表、物品效果和拾取特效池。
+玩家侧检测逻辑没有写进 `PickupSystem`，而是拆到 `PlayerPickupSystem`，便于后续不同角色拥有不同拾取半径和吸附速度。
+
+### 10.10 后续扩展点
+
+1. M7 UI 可监听 `PlayerProgress.OnExperienceChanged` 和 `OnScoreChanged` 显示经验、分数或击杀收益。
+2. 后续可在 `ItemEffectType` 中扩展金币、磁铁、临时 Buff、清屏炸弹等效果。
+3. Boss 或精英敌人可通过专属 `DropTableConfig` 配置更高价值掉落。
+4. 若掉落数量大幅上升，可将 `PlayerPickupSystem` 的线性扫描替换为空间分区查询。
+5. 可将拾取特效池的根节点挂到场景内统一运行时容器，方便调试层级。
 
 ## 11. M6 Buff/Debuff/AOE 实现计划
 

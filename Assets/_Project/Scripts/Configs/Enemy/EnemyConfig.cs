@@ -36,7 +36,12 @@ public class EnemyConfig : ScriptableObject
     [Tooltip("Enemy runtime animator controller")]
     public RuntimeAnimatorController animatorController;
 
+    [Header("ENEMY DROP DETAILS")]
+    [SerializeField]
+    private DropTableConfig dropTableConfig;
+
     public string ResourceId => string.IsNullOrWhiteSpace(resourceId) ? enemyName : resourceId;
     public float AttackCooldownSeconds => hitIntervalMs > 0 ? hitIntervalMs / 1000f : 1f;
     public float AttackRange => Mathf.Max(0.01f, attackRange);
+    public DropTableConfig DropTableConfig => dropTableConfig;
 }
