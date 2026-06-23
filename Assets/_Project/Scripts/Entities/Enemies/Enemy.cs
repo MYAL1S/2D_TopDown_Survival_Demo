@@ -17,6 +17,8 @@ using UnityEngine;
 [RequireComponent(typeof(EnemyInjuredHandler))]
 [RequireComponent(typeof(EnemyDeathHandler))]
 [RequireComponent(typeof(EnemyDropHandler))]
+[RequireComponent(typeof(RuntimeStats))]
+[RequireComponent(typeof(StatusEffectManager))]
 #endregion
 [DisallowMultipleComponent]
 public class Enemy : MonoBehaviour, IPoolable
@@ -33,6 +35,8 @@ public class Enemy : MonoBehaviour, IPoolable
     public DeathEvent DeathEvent { get; private set; }
     public AttackEvent AttackEvent { get; private set; }
     public Rigidbody2D Rigidbody2D { get; private set; }
+    public RuntimeStats RuntimeStats { get; private set; }
+    public StatusEffectManager StatusEffectManager { get; private set; }
     public EnemyConfig Config => Controller != null ? Controller.Config : null;
     public Transform Target => Controller != null ? Controller.Target : null;
     public float MoveSpeed => Controller != null ? Controller.MoveSpeed : 0f;
@@ -73,13 +77,13 @@ public class Enemy : MonoBehaviour, IPoolable
     {
         if (Controller == null)
             Controller = GetComponent<EnemyController>();
-        if (Controller == null)
+        if (AISystem == null)
             AISystem = GetComponent<EnemyAISystem>();
         if (AttackSystem == null)
             AttackSystem = GetComponent<EnemyAttackSystem>();
         if (MeleeAttackHandler == null)
             MeleeAttackHandler = GetComponent<EnemyMeleeAttackHandler>();
-        if (InjuredHandler)
+        if (InjuredHandler == null)
             InjuredHandler = GetComponent<EnemyInjuredHandler>();
         if (DeathHandler == null)
             DeathHandler = GetComponent<EnemyDeathHandler>();
@@ -95,6 +99,10 @@ public class Enemy : MonoBehaviour, IPoolable
             AttackEvent = GetComponent<AttackEvent>();
         if (Rigidbody2D == null)
             Rigidbody2D = GetComponent<Rigidbody2D>();
+        if (RuntimeStats == null)
+            RuntimeStats = GetComponent<RuntimeStats>();
+        if (StatusEffectManager == null)
+            StatusEffectManager = GetComponent<StatusEffectManager>();
     }
 
     /// <summary>
@@ -133,6 +141,11 @@ public class Enemy : MonoBehaviour, IPoolable
     /// </summary>
     public void OnReturnedToPool()
     {
+        if (StatusEffectManager != null)
+        {
+            StatusEffectManager.ClearAll();
+        }
+
         TargetingSystem.UnregisterEnemy(this);
         SetTarget(null);
         ResetRigidbody();
@@ -176,6 +189,8 @@ public class Enemy : MonoBehaviour, IPoolable
         EnsureComponent<AttackEvent>();
         EnsureComponent<EnemyAttackSystem>();
         EnsureComponent<EnemyMeleeAttackHandler>();
+        EnsureComponent<RuntimeStats>();
+        EnsureComponent<StatusEffectManager>();
     }
 
     private void EnsureComponent<T>() where T : Component

@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Player))]
+[RequireComponent(typeof(RuntimeStats))]
 [DisallowMultipleComponent]
 public class PlayerController : MonoBehaviour
 {
@@ -9,7 +10,9 @@ public class PlayerController : MonoBehaviour
     private PlayerConfig playerConfig;
 
     private Player player;
+    private RuntimeStats runtimeStats;
     private float moveSpeed;
+    private float lastAppliedAnimationSpeed = -1f;
     private Vector2 moveInput;
     private bool wasMoving;
     private bool isInitialized;
@@ -17,11 +20,15 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         player = GetComponent<Player>();
+        runtimeStats = GetComponent<RuntimeStats>();
     }
 
     private void Start()
     {
-        Initialize(playerConfig);
+        if (!isInitialized)
+        {
+            Initialize(playerConfig);
+        }
     }
 
     private void Update()
@@ -43,6 +50,8 @@ public class PlayerController : MonoBehaviour
         {
 
             bool isMoving = moveInput.sqrMagnitude > 0.0001f;
+            moveSpeed = runtimeStats != null ? runtimeStats.CurrentMoveSpeed : moveSpeed;
+            UpdatePlayerAnimationSpeedIfNeeded();
 
             if (isMoving)
             {
@@ -72,20 +81,42 @@ public class PlayerController : MonoBehaviour
         }
 
         playerConfig = config;
-        moveSpeed = playerConfig.MoveSpeed;
+        if (runtimeStats == null)
+        {
+            runtimeStats = GetComponent<RuntimeStats>();
+        }
+
+        if (runtimeStats != null)
+        {
+            runtimeStats.InitializeMoveSpeed(playerConfig.MoveSpeed);
+            moveSpeed = runtimeStats.CurrentMoveSpeed;
+        }
+        else
+        {
+            moveSpeed = playerConfig.MoveSpeed;
+        }
+
         isInitialized = true;
         enabled = true;
-        SetPlayerAnimationSpeed();
+        lastAppliedAnimationSpeed = -1f;
+        UpdatePlayerAnimationSpeedIfNeeded();
     }
 
     /// <summary>
     /// 根据玩家的移动速度设置动画播放速度
     /// </summary>
-    private void SetPlayerAnimationSpeed()
+    private void UpdatePlayerAnimationSpeedIfNeeded()
     {
+        if (Mathf.Approximately(lastAppliedAnimationSpeed, moveSpeed))
+        {
+            return;
+        }
+
         if (player != null && player.Animator != null)
         {
             player.Animator.speed = moveSpeed / Settings.baseSpeedForPlayerAnimations;
         }
+
+        lastAppliedAnimationSpeed = moveSpeed;
     }
 }

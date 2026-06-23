@@ -25,7 +25,7 @@ public class ProjectileWeaponAttackStrategy : WeaponAttackStrategy
         // 如果武器没有投射物预制体 则直接应用配置的伤害
         if (context.ProjectilePrefab == null)
         {
-            return services.ApplyConfiguredDamage(target, target.transform.position, context.Damage, weaponConfig);
+            return services.ApplyConfiguredDamage(context, target, target.transform.position, context.Damage, weaponConfig);
         }
 
         // 发射投射物

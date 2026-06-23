@@ -21,7 +21,7 @@ public class ItemConfig : ScriptableObject
 
     [SerializeField]
     [Min(0f)]
-    [Tooltip("The amount of the effect applied by the item.")]
+    [Tooltip("The amount of the effect applied by the item，such as: money amount, health restoration, etc.")]
     private float effectAmount = 1f;
 
     [SerializeField]

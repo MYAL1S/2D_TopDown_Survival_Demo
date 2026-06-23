@@ -11,6 +11,8 @@ using UnityEngine;
 [RequireComponent(typeof(AttackEvent))]
 [RequireComponent(typeof(EnemyAttackSystem))]
 [RequireComponent(typeof(EnemyMeleeAttackHandler))]
+[RequireComponent(typeof(RuntimeStats))]
+[RequireComponent(typeof(StatusEffectManager))]
 #endregion
 [DisallowMultipleComponent]
 public class EnemyController : MonoBehaviour
@@ -30,11 +32,12 @@ public class EnemyController : MonoBehaviour
     private Rigidbody2D rigidBody2D;
     // 敌人生命值组件
     private Health health;
+    private RuntimeStats runtimeStats;
     // 敌人的目标 Transform 组件 用于敌人追踪和攻击目标
     public Transform Target { get; private set; }
 
     public EnemyConfig Config => enemyConfig;
-    public float MoveSpeed => speed;
+    public float MoveSpeed => runtimeStats != null ? runtimeStats.CurrentMoveSpeed : speed;
     public float Attack => atk;
     public float Defense => def;
     public float AttackCooldown => attackCooldown;
@@ -49,6 +52,7 @@ public class EnemyController : MonoBehaviour
         // 缓存组件引用
         rigidBody2D = GetComponent<Rigidbody2D>();
         health = GetComponent<Health>();
+        runtimeStats = GetComponent<RuntimeStats>();
         // 配置刚体属性
         rigidBody2D.gravityScale = 0f;
         rigidBody2D.freezeRotation = true;
@@ -71,6 +75,16 @@ public class EnemyController : MonoBehaviour
             def = Mathf.Max(0f, config.def);
             attackCooldown = Mathf.Max(0.01f, config.AttackCooldownSeconds);
             attackRange = Mathf.Max(0.01f, config.AttackRange);
+            if (runtimeStats == null)
+            {
+                runtimeStats = GetComponent<RuntimeStats>();
+            }
+
+            if (runtimeStats != null)
+            {
+                runtimeStats.InitializeMoveSpeed(speed);
+            }
+
             health.Initialize(config.health, def);
 
             Animator animator = GetComponentInChildren<Animator>();

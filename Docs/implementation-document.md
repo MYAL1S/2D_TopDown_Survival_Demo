@@ -22,7 +22,7 @@
 | M3 敌人生成和追踪 | 已完成 | 屏幕外刷怪、敌人追踪玩家 |
 | M4 自动攻击和战斗 | 已完成 | 自动索敌、攻击、伤害、死亡 |
 | M5 掉落和拾取 | 已完成 | 敌人死亡掉落、玩家吸附拾取、经验和回血效果 |
-| M6 Buff/Debuff/AOE | 未开始 | 状态效果和范围效果 |
+| M6 Buff/Debuff/AOE | 已完成 | 状态效果、武器命中 Debuff、AOE 范围效果和对象池 |
 | M7 UI、调试和优化 | 未开始 | UI、对象池、调试信息、性能优化 |
 | M8 文档整理和演示准备 | 未开始 | README、截图、演示说明 |
 
@@ -862,9 +862,175 @@ M5 中有两类高频对象使用对象池：
 
 实际实现记录：
 
+状态：已完成
+
+### 11.1 最终实现范围
+
+M6 已实现可配置状态效果系统、Buff/Debuff 运行时管理、修饰器模式、全局状态 Tick、武器命中状态附加、AOE 范围效果、AOE 对象池和 AOE 特效重播/视觉生命周期处理。
+
+当前实现支持：
+
+| 能力 | 说明 |
+| --- | --- |
+| Buff | 通过状态效果修改玩家或敌人的运行时属性，例如移动速度提升 |
+| Debuff | 通过状态效果修改敌人属性或造成周期伤害，例如减速和中毒 |
+| 状态叠加 | 支持 Refresh、Stack、Independent 三种叠加策略 |
+| 修饰器模式 | 状态实例只管理生命周期，具体行为由 `StatusEffectModifier` 运行时对象执行 |
+| 全局 Tick | 状态系统不为每个 Buff 创建 `Update`，由 `StatusEffectTickSystem` 统一驱动 |
+| 状态来源 | 每个状态实例保存 `StatusEffectSourceContext`，记录来源对象、施加者、伤害归属、武器和 AOE 配置 |
+| 武器命中状态 | `WeaponConfig.onHitStatusEffects` 统一定义武器命中后附加的 Debuff/Buff |
+| AOE | 支持持续区域、周期伤害、范围命中、多目标影响和对象池复用 |
+| AOE 视觉 | 支持池化后重播粒子/动画，并通过 `visualLifetime` 处理瞬发 AOE 的视觉保留 |
+
+### 11.2 新增和调整脚本
+
+| 脚本 | 类型 | 职责 |
+| --- | --- | --- |
+| `StatusEffectConfig.cs` | ScriptableObject | 定义状态 ID、类型、目标类型、叠加规则、持续时间、最大层数和修饰器列表 |
+| `StatusEffectType.cs` | 枚举 | 区分 Buff、Debuff 等状态类型 |
+| `StatusEffectTargetType.cs` | 枚举 | 限定状态可施加到玩家、敌人或任意实体 |
+| `StatusEffectStackingBehavior.cs` | 枚举 | 定义 Refresh、Stack、Independent 三种叠加行为 |
+| `IStatusEffect.cs` | 接口 | 定义状态实例生命周期：Apply、Tick、Remove、Refresh、Stack |
+| `StatusEffectInstance.cs` | 运行时实例 | 保存状态剩余时间、层数和运行时修饰器，并转发生命周期回调 |
+| `StatusEffectManager.cs` | 实体组件 | 挂在玩家或敌人身上，负责接收、刷新、叠加、移除和清理状态 |
+| `StatusEffectContext.cs` | 运行时上下文 | 缓存目标实体、Health、RuntimeStats 等状态行为所需信息 |
+| `StatusEffectSourceContext.cs` | 施加来源上下文 | 保存状态来源对象、施加者、伤害归属对象、武器配置、AOE 配置和强度倍率 |
+| `StatusEffectTickSystem.cs` | 全局系统 | 按固定间隔广播状态 Tick，避免每个状态实例独立 `Update` |
+| `StatusEffectModifier.cs` | ScriptableObject 基类 | 定义状态具体行为的配置入口 |
+| `IStatusEffectModifierRuntime.cs` | 运行时接口 | 定义修饰器运行时对象的 Apply、Tick、Remove、Refresh、Stack 回调 |
+| `MoveSpeedStatusEffectModifier.cs` | 状态修饰器 | 根据层数修改目标 `RuntimeStats.MoveSpeedMultiplier` |
+| `PeriodicDamageStatusEffectModifier.cs` | 状态修饰器 | 按内部间隔对目标造成周期伤害 |
+| `RuntimeStats.cs` | 实体属性 | 保存运行时属性倍率，当前用于移动速度倍率 |
+| `AOEConfig.cs` | ScriptableObject | 定义 AOE ID、半径、持续时间、视觉生命周期、Tick 间隔、伤害、目标上限、区域状态和 prefab |
+| `AOESpawnPositionMode.cs` | 枚举 | 定义 AOE 生成在目标、攻击者或攻击原点 |
+| `AOEZoneController.cs` | AOE 实体 | 管理单个 AOE 区域的生命周期、范围查询、周期伤害、状态施加和特效重播 |
+| `AOESystem.cs` | 全局系统 | 生成和回收 AOE，维护 AOE 对象池，并用单一 Runner 推进活动 AOE |
+| `AOEDebugSpawner.cs` | 调试组件 | 通过按键在玩家或当前物体位置生成指定 AOE |
+| `AOEWeaponAttackStrategy.cs` | 武器攻击策略 | 将武器攻击桥接到 `AOESystem.SpawnAOE` |
+| `WeaponDamageApplier.cs` | 战斗系统 | 在统一伤害入口中附加 `WeaponConfig.onHitStatusEffects` |
+
+既有脚本调整：
+
+1. `Player`、`Enemy` 增加 `StatusEffectManager`、`RuntimeStats` 相关缓存或运行时补齐。
+2. `PlayerController`、`EnemyController` 的移动速度读取接入 `RuntimeStats`，使 Haste/Slow 能临时影响移动速度。
+3. `WeaponConfig` 增加 AOE 配置、AOE 生成位置、命中状态列表和状态施加概率。
+4. `WeaponAttackServices` 增加 `SpawnAOE` 桥接方法，把来源 `WeaponConfig` 和施加者信息传给 AOE。
+5. `SingleTargetDamageStrategy` 和 `AreaDamageStrategy` 改为通过 `WeaponDamageApplier` 统一处理武器命中状态。
+6. `GameResources` 增加 StatusEffectConfig 和 AOEConfig 的资源列表与按 ID 查询缓存。
+
+### 11.3 资源配置
+
+新增资源目录：
+
 ```text
-待 M6 完成后补充。
+Assets/_Project/ScriptableObjects/Status
+Assets/_Project/ScriptableObjects/Status/Modifiers
+Assets/_Project/ScriptableObjects/AOE
 ```
+
+状态资源：
+
+| 资源 | 类型 | 行为 |
+| --- | --- | --- |
+| `StatusEffectConfig_Haste.asset` | Buff | 通过移动速度修饰器提升移动速度 |
+| `StatusEffectConfig_Slow.asset` | Debuff | 通过移动速度修饰器降低移动速度 |
+| `StatusEffectConfig_Poison.asset` | Debuff | 通过周期伤害修饰器造成持续伤害，并支持叠层 |
+| `StatusEffectModifier_HasteMoveSpeed.asset` | Modifier | 配置加速倍率 |
+| `StatusEffectModifier_SlowMoveSpeed.asset` | Modifier | 配置减速倍率 |
+| `StatusEffectModifier_PoisonDamage.asset` | Modifier | 配置毒伤 Tick 间隔和每层伤害 |
+
+AOE 资源：
+
+| 资源 | 行为 |
+| --- | --- |
+| `AOEConfig_Daggers.asset` | 持续区域伤害，使用 AOE prefab 和对象池生成 |
+| `AOEConfig_SlowPoisonField.asset` | 持续区域伤害，状态效果由来源武器的命中状态配置提供 |
+
+武器示例：
+
+| 资源 | 行为 |
+| --- | --- |
+| `WeaponAttackStrategy_AOE.asset` | 通用 AOE 武器攻击策略 |
+| `WeaponConfig_PoisonField.asset` | 使用 AOE 攻击策略生成 `aoe_slow_poison_field`，并在命中时附加 Slow 和 Poison |
+
+### 11.4 运行流程
+
+状态效果流程：
+
+```text
+外部系统调用 StatusEffectManager.ApplyEffect(config)
+  -> StatusEffectConfig.CanApplyTo 校验目标类型
+  -> 创建 StatusEffectInstance
+  -> StatusEffectManager 根据 stackingBehavior 处理新增、刷新、叠层或独立实例
+  -> StatusEffectInstance.OnApply 调用所有运行时修饰器
+  -> StatusEffectTickSystem 按固定间隔广播 Tick
+  -> StatusEffectManager.TickEffects 更新剩余时间并触发修饰器 OnTick
+  -> 持续时间归零或实体死亡时调用 OnRemove 并清理状态
+```
+
+武器命中 Debuff 流程：
+
+```text
+PlayerWeaponSystem 自动攻击
+  -> WeaponAttackStrategy 执行攻击
+  -> Direct / Projectile / AOE 产生命中
+  -> WeaponDamageApplier.ApplySingleTargetDamage 或 ApplyAreaDamage
+  -> CombatSystem.ApplyDamage
+  -> 目标仍存活时读取 WeaponConfig.onHitStatusEffects
+  -> 构建 StatusEffectSourceContext
+  -> 依据 onHitStatusApplyChance 对目标 StatusEffectManager.ApplyEffect(config, sourceContext)
+```
+
+AOE 流程：
+
+```text
+AOEWeaponAttackStrategy.TryExecute
+  -> 根据 AOESpawnPositionMode 计算生成位置
+  -> WeaponAttackServices.SpawnAOE
+  -> AOESystem.SpawnAOE
+  -> 从 ComponentPool<AOEZoneController> 获取区域对象或运行时创建
+  -> AOEZoneController.Initialize
+  -> 重播 playOnAwake 粒子和 Animator
+  -> Tick 时通过 TargetingSystem.CollectAliveEnemiesInRange 收集范围内敌人
+  -> 对每个目标执行伤害和来源武器命中状态，并传递 AOE 来源上下文
+  -> 生命周期结束后回收到 AOE 对象池
+```
+
+### 11.5 设计调整
+
+1. 原计划中的 `StatusEffectSystem.cs` 没有作为单一脚本实现，实际拆分为 `StatusEffectManager` 和 `StatusEffectTickSystem`：前者挂在实体上管理状态列表，后者提供全局 Tick。
+2. 状态具体行为没有写死在 `StatusEffectInstance` 内，而是通过 `StatusEffectModifier` 和 `IStatusEffectModifierRuntime` 实现修饰器模式，便于继续扩展护甲、暴击、攻速、治疗、燃烧等效果。
+3. Debuff 没有作为 AOE 独有能力处理，而是上移到 `WeaponConfig.onHitStatusEffects`。这样单体武器、投射物武器和 AOE 武器都能复用同一套命中状态逻辑。
+4. `AOEConfig.statusEffects` 被保留，但语义调整为“区域自身天然状态”，例如地图毒池或怪物技能；武器造成的 Debuff 由 `WeaponConfig` 管理。
+5. AOE 没有直接写入传统武器伤害策略，而是通过 `AOEWeaponAttackStrategy` 桥接武器系统和 AOE 系统，保持 AOE 可被武器、怪物技能、场景机关等复用。
+6. AOE 对象使用 `ComponentPool<AOEZoneController>` 复用，并由 `AOESystemRunner` 单一 Update 推进所有活动区域，避免每个系统散落运行时入口。
+7. 对于 `duration = 0` 的瞬发 AOE，新增 `visualLifetime`，保证玩法效果瞬时结算但特效不会同帧消失。
+
+### 11.6 验收结果
+
+| 验收项 | 结果 |
+| --- | --- |
+| Buff 可以临时修改玩家属性 | 通过，Haste 可通过移动速度修饰器影响 `RuntimeStats` |
+| Debuff 可以临时修改敌人属性 | 通过，Slow 可降低敌人移动速度 |
+| Debuff 可以造成周期伤害 | 通过，Poison 可通过周期伤害修饰器造成持续伤害 |
+| 状态效果可通过 ScriptableObject 配置 | 通过，状态配置和修饰器均为 ScriptableObject |
+| 状态效果支持叠加/刷新 | 通过，支持 Refresh、Stack、Independent |
+| 状态 Tick 不依赖每个 Buff 独立 Update | 通过，由 `StatusEffectTickSystem` 统一 Tick |
+| 状态效果保存来源、施加者和伤害归属 | 通过，`StatusEffectSourceContext` 随每个状态实例保存 |
+| 单体/范围/投射物武器可复用命中 Debuff | 通过，统一接入 `WeaponDamageApplier` |
+| AOE 可以影响范围内多个目标 | 通过，AOE 通过 `TargetingSystem` 收集范围敌人并逐个结算 |
+| AOE 可由武器系统触发 | 通过，`AOEWeaponAttackStrategy` 已接入 |
+| AOE 高频对象可复用 | 通过，AOE prefab 使用 `ComponentPool<AOEZoneController>` |
+| AOE 池化特效可重播 | 通过，生成时重播粒子和 Animator，回池时清理粒子状态 |
+| 项目编译 | 通过，`dotnet build .\Assembly-CSharp.csproj` 为 0 错误 0 警告 |
+
+### 11.7 后续扩展点
+
+1. M7 可基于 `StatusEffectManager.OnEffectApplied` 和 `OnEffectRemoved` 显示当前 Buff/Debuff 图标。
+2. 可继续增加护甲、攻速、暴击、吸血、灼烧、冰冻、眩晕等 `StatusEffectModifier`。
+3. 可基于 `StatusEffectSourceContext.DamageOwnerObject` 扩展击杀归属、伤害统计、吸血和成就统计。
+4. 可增加 AOE 目标层级、阵营过滤、命中次数限制和不同形状区域。
+5. 后续如果 AOE 数量继续上升，可在 TargetingSystem 内部继续优化空间分区、查询批处理或缓存策略，而不是修改 AOE 调用层。
 
 ## 12. M7 UI、调试和优化实现计划
 

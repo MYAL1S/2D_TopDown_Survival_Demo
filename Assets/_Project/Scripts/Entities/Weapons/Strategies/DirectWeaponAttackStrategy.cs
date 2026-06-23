@@ -27,6 +27,6 @@ public class DirectWeaponAttackStrategy : WeaponAttackStrategy
         services.TryGetTarget(context, out Enemy target);
         // 如果没有目标则使用攻击起点作为伤害位置
         Vector3 impactPosition = target != null ? target.transform.position : context.Origin;
-        return services.ApplyConfiguredDamage(target, impactPosition, context.Damage, weaponConfig);
+        return services.ApplyConfiguredDamage(context, target, impactPosition, context.Damage, weaponConfig);
     }
 }

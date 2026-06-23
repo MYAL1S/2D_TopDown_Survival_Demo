@@ -24,6 +24,8 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerWeaponSystem))]
 [RequireComponent(typeof(PlayerPickupSystem))]
 [RequireComponent(typeof(PlayerProgress))]
+[RequireComponent(typeof(RuntimeStats))]
+[RequireComponent(typeof(StatusEffectManager))]
 #endregion
 [DisallowMultipleComponent]
 public class Player : MonoBehaviour
@@ -47,6 +49,8 @@ public class Player : MonoBehaviour
     public PlayerWeaponSystem PlayerWeaponSystem { get; private set; }
     public PlayerPickupSystem PlayerPickupSystem { get; private set; }
     public PlayerProgress PlayerProgress { get; private set; }
+    public RuntimeStats RuntimeStats { get; private set; }
+    public StatusEffectManager StatusEffectManager { get; private set; }
 
 
     void Awake()
@@ -77,6 +81,8 @@ public class Player : MonoBehaviour
         EnsureComponent<PlayerWeaponSystem>();
         EnsureComponent<PlayerPickupSystem>();
         EnsureComponent<PlayerProgress>();
+        EnsureComponent<RuntimeStats>();
+        EnsureComponent<StatusEffectManager>();
     }
 
     private void EnsureComponent<T>() where T : Component
@@ -125,6 +131,10 @@ public class Player : MonoBehaviour
             PlayerPickupSystem = GetComponent<PlayerPickupSystem>();
         if (PlayerProgress == null)
             PlayerProgress = GetComponent<PlayerProgress>();
+        if (RuntimeStats == null)
+            RuntimeStats = GetComponent<RuntimeStats>();
+        if (StatusEffectManager == null)
+            StatusEffectManager = GetComponent<StatusEffectManager>();
     }
 
     public void SetAllComponentsEnabled(bool enabled)
@@ -163,5 +173,9 @@ public class Player : MonoBehaviour
             PlayerPickupSystem.enabled = enabled;
         if (PlayerProgress != null)
             PlayerProgress.enabled = enabled;
+        if (RuntimeStats != null)
+            RuntimeStats.enabled = enabled;
+        if (StatusEffectManager != null)
+            StatusEffectManager.enabled = enabled;
     }
 }

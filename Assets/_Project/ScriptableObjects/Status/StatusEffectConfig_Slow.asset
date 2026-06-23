@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8df2d464550a69a468439a0b5512fdda, type: 3}
+  m_Name: StatusEffectConfig_Slow
+  m_EditorClassIdentifier: 
+  effectId: status_slow
+  effectType: 1
+  targetType: 2
+  stackingBehavior: 0
+  duration: 3
+  maxStacks: 1
+  modifiers:
+  - {fileID: 11400000, guid: e9900000000000000000000000000012, type: 2}

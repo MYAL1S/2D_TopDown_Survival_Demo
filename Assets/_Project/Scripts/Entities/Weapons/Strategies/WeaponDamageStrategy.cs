@@ -11,5 +11,6 @@ public abstract class WeaponDamageStrategy : ScriptableObject
         Vector3 impactPosition,
         float damage,
         WeaponConfig weaponConfig,
-        List<Enemy> areaTargets);
+        List<Enemy> areaTargets,
+        StatusEffectSourceContext sourceContext);
 }

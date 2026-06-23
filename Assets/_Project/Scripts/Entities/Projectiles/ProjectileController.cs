@@ -28,6 +28,7 @@ public class ProjectileController : MonoBehaviour, IPoolable
     private float hitRadius;
     private bool isLaunched;
     private WeaponConfig weaponConfig;
+    private StatusEffectSourceContext statusEffectSourceContext;
 
     public WeaponConfig WeaponConfig => weaponConfig;
     public float Damage => damage;
@@ -156,6 +157,11 @@ public class ProjectileController : MonoBehaviour, IPoolable
     {
         this.target = target;
         weaponConfig = context.WeaponConfig;
+        statusEffectSourceContext = new StatusEffectSourceContext(
+            gameObject,
+            context.AttackerObject,
+            context.AttackerObject,
+            weaponConfig);
         damage = context.Damage;
         speed = Mathf.Max(0.01f, context.ProjectileSpeed);
         maxTravelDistance = Mathf.Max(0.01f, context.Range);
@@ -181,6 +187,7 @@ public class ProjectileController : MonoBehaviour, IPoolable
 
         rigidBody2D.velocity = Vector2.zero;
         rigidBody2D.angularVelocity = 0f;
+        statusEffectSourceContext = StatusEffectSourceContext.None;
         isLaunched = false;
     }
 
@@ -197,6 +204,7 @@ public class ProjectileController : MonoBehaviour, IPoolable
 
         target = null;
         weaponConfig = null;
+        statusEffectSourceContext = StatusEffectSourceContext.None;
         releaseAction = null;
         enemyHitTimes.Clear();
         isLaunched = false;
@@ -224,7 +232,8 @@ public class ProjectileController : MonoBehaviour, IPoolable
             impactPosition,
             damage,
             weaponConfig,
-            areaTargets);
+            areaTargets,
+            statusEffectSourceContext);
 
         // 如果成功应用了伤害
         // 则记录当前时间作为对该敌人的最后命中时间 以便后续判断穿透伤害间隔

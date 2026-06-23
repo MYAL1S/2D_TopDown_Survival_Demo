@@ -22,13 +22,25 @@ public class GameResources : MonoBehaviour
     [SerializeField]
     private EnemyConfig[] enemyConfigs;
 
+    [Header("Status Effect Resources")]
+    [SerializeField]
+    private StatusEffectConfig[] statusEffectConfigs;
+
+    [Header("AOE Resources")]
+    [SerializeField]
+    private AOEConfig[] aoeConfigs;
+
     // 运行时缓存
     // 用 ResourceId 作为键 配置对象作为值 以便快速查找
     private readonly Dictionary<string, PlayerConfig> playerConfigLookup = new Dictionary<string, PlayerConfig>();
     private readonly Dictionary<string, EnemyConfig> enemyConfigLookup = new Dictionary<string, EnemyConfig>();
+    private readonly Dictionary<string, StatusEffectConfig> statusEffectConfigLookup = new Dictionary<string, StatusEffectConfig>();
+    private readonly Dictionary<string, AOEConfig> aoeConfigLookup = new Dictionary<string, AOEConfig>();
 
     public IReadOnlyList<PlayerConfig> PlayerConfigs => playerConfigs;
     public IReadOnlyList<EnemyConfig> EnemyConfigs => enemyConfigs;
+    public IReadOnlyList<StatusEffectConfig> StatusEffectConfigs => statusEffectConfigs;
+    public IReadOnlyList<AOEConfig> AOEConfigs => aoeConfigs;
 
     /// <summary>
     /// 初始化单例并构建查找缓存。
@@ -93,6 +105,36 @@ public class GameResources : MonoBehaviour
     }
 
     /// <summary>
+    /// 获取状态效果配置
+    /// </summary>
+    /// <param name="effectId">状态id</param>
+    /// <returns></returns>
+    public StatusEffectConfig GetStatusEffectConfig(string effectId)
+    {
+        if (string.IsNullOrWhiteSpace(effectId))
+        {
+            return null;
+        }
+
+        return statusEffectConfigLookup.TryGetValue(effectId, out StatusEffectConfig config) ? config : null;
+    }
+
+    /// <summary>
+    /// 获取AOE配置
+    /// </summary>
+    /// <param name="resourceId">AOE配置id</param>
+    /// <returns></returns>
+    public AOEConfig GetAOEConfig(string resourceId)
+    {
+        if (string.IsNullOrWhiteSpace(resourceId))
+        {
+            return null;
+        }
+
+        return aoeConfigLookup.TryGetValue(resourceId, out AOEConfig config) ? config : null;
+    }
+
+    /// <summary>
     /// 在指定候选 ID 中随机获取一个可用的敌人配置
     /// 如果未提供候选，则从全部敌人配置中随机选择
     /// </summary>
@@ -123,9 +165,13 @@ public class GameResources : MonoBehaviour
     {
         playerConfigLookup.Clear();
         enemyConfigLookup.Clear();
+        statusEffectConfigLookup.Clear();
+        aoeConfigLookup.Clear();
 
         AddPlayerConfigsToCache(playerConfigs);
         AddEnemyConfigsToCache(enemyConfigs);
+        AddStatusEffectConfigsToCache(statusEffectConfigs);
+        AddAOEConfigsToCache(aoeConfigs);
     }
 
     /// <summary>
@@ -171,6 +217,52 @@ public class GameResources : MonoBehaviour
             }
 
             enemyConfigLookup[config.ResourceId] = config;
+        }
+    }
+
+    /// <summary>
+    /// 将所有状态效果缓存
+    /// </summary>
+    /// <param name="configs"></param>
+    private void AddStatusEffectConfigsToCache(StatusEffectConfig[] configs)
+    {
+        if (configs == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < configs.Length; i++)
+        {
+            StatusEffectConfig config = configs[i];
+            if (config == null || string.IsNullOrWhiteSpace(config.EffectId))
+            {
+                continue;
+            }
+
+            statusEffectConfigLookup[config.EffectId] = config;
+        }
+    }
+
+    /// <summary>
+    /// 将所有AOE配置缓存
+    /// </summary>
+    /// <param name="configs"></param>
+    private void AddAOEConfigsToCache(AOEConfig[] configs)
+    {
+        if (configs == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < configs.Length; i++)
+        {
+            AOEConfig config = configs[i];
+            if (config == null || string.IsNullOrWhiteSpace(config.ResourceId))
+            {
+                continue;
+            }
+
+            aoeConfigLookup[config.ResourceId] = config;
         }
     }
 

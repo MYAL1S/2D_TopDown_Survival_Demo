@@ -21,6 +21,10 @@ MonoBehaviour:
   damageStrategy: {fileID: 11400000, guid: c5555555555555555555555555555555, type: 2}
   projectileHitStrategy: {fileID: 11400000, guid: c3333333333333333333333333333333, type: 2}
   damageRadius: 1
+  aoeConfig: {fileID: 0}
+  aoeSpawnPositionMode: 0
+  onHitStatusEffects: []
+  onHitStatusApplyChance: 1
   projectileSpeed: 5
   projectileHitRadius: 0.2
   projectilePrefab: {fileID: 7221963374000132505, guid: e02bd3696de950d4791622bfeb7ec6de, type: 3}

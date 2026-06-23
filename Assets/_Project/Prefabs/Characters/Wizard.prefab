@@ -28,6 +28,10 @@ GameObject:
   - component: {fileID: 8525528369750801740}
   - component: {fileID: 4523943929481179065}
   - component: {fileID: 6734859300955922467}
+  - component: {fileID: 3125293691838560033}
+  - component: {fileID: 7007074343385265071}
+  - component: {fileID: 1947984737276694245}
+  - component: {fileID: 2124482212904693323}
   m_Layer: 6
   m_Name: Wizard
   m_TagString: Player
@@ -246,7 +250,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e85ccaf1e756a3948bbbe90ff45a74c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerConfig: {fileID: 0}
+  playerConfig: {fileID: 11400000, guid: fd4bafb3d2e0890429459e0aac542acf, type: 2}
 --- !u!114 &-2779475456110560386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,13 +311,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20a938aaf30193c47a95d0485f036034, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerController: {fileID: 0}
-  movementByVelocityEvent: {fileID: 0}
-  movementByVelocity: {fileID: 0}
-  idleEvent: {fileID: 0}
-  idle: {fileID: 0}
-  spriteRenderer: {fileID: 0}
-  animator: {fileID: 0}
 --- !u!114 &6503990971679636508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,6 +377,58 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   invincibilityDuration: 0.75
+--- !u!114 &3125293691838560033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df36f0abfa23ad8489c6cb901116700e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMoveSpeed: 0
+--- !u!114 &7007074343385265071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1000000000000000000000000000009, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupRadius: 2.5
+  collectDistance: 0.35
+  attractSpeed: 8
+--- !u!114 &1947984737276694245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1000000000000000000000000000008, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2124482212904693323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2921880940271959218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad5c8f50f3503f947a81efcd11749a31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7057781128107813532
 GameObject:
   m_ObjectHideFlags: 0

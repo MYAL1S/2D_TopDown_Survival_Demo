@@ -12,8 +12,9 @@ public class SingleTargetDamageStrategy : WeaponDamageStrategy
         Vector3 impactPosition,
         float damage,
         WeaponConfig weaponConfig,
-        List<Enemy> areaTargets)
+        List<Enemy> areaTargets,
+        StatusEffectSourceContext sourceContext)
     {
-        return WeaponDamageApplier.ApplySingleTargetDamage(target, damage);
+        return WeaponDamageApplier.ApplySingleTargetDamage(target, damage, weaponConfig, sourceContext);
     }
 }

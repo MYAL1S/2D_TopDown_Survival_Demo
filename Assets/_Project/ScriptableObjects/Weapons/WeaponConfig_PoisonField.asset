@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a98cd7e1f9d919c4eb5c7b66ab628bd1, type: 3}
+  m_Name: WeaponConfig_PoisonField
+  m_EditorClassIdentifier: 
+  resourceId: weapon_poison_field
+  weaponName: Poison Field
+  damage: 0
+  cooldown: 3
+  range: 7
+  attackStrategy: {fileID: 11400000, guid: e51971bdc0b54c1cb483d4007d6bd19f, type: 2}
+  damageStrategy: {fileID: 11400000, guid: c6666666666666666666666666666666, type: 2}
+  projectileHitStrategy: {fileID: 11400000, guid: c2222222222222222222222222222222, type: 2}
+  damageRadius: 1
+  aoeConfig: {fileID: 11400000, guid: 4e798e4a9b9644b9b6d1ce8c5586b793, type: 2}
+  aoeSpawnPositionMode: 0
+  onHitStatusEffects:
+  - {fileID: 11400000, guid: b52dfb944c228d447914c5b5b608a9a8, type: 2}
+  - {fileID: 11400000, guid: 5d7016d244fe4e946b4966729a5c04bb, type: 2}
+  onHitStatusApplyChance: 1
+  projectileSpeed: 8
+  projectileHitRadius: 0.2
+  projectilePrefab: {fileID: 7689937814049821681, guid: 98fb7fc0eca131b4aa0db1df92577fde, type: 3}
+  piercingDamageInterval: 0.2

@@ -13,13 +13,20 @@ public class AreaDamageStrategy : WeaponDamageStrategy
         Vector3 impactPosition,
         float damage,
         WeaponConfig weaponConfig,
-        List<Enemy> areaTargets)
+        List<Enemy> areaTargets,
+        StatusEffectSourceContext sourceContext)
     {
         if (weaponConfig == null)
         {
             return false;
         }
 
-        return WeaponDamageApplier.ApplyAreaDamage(impactPosition, weaponConfig.DamageRadius, damage, areaTargets);
+        return WeaponDamageApplier.ApplyAreaDamage(
+            impactPosition,
+            weaponConfig.DamageRadius,
+            damage,
+            areaTargets,
+            weaponConfig,
+            sourceContext);
     }
 }

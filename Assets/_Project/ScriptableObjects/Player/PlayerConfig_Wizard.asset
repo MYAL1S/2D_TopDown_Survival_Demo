@@ -17,7 +17,7 @@ MonoBehaviour:
   playerPrefab: {fileID: 2921880940271959218, guid: e46276dd75482da438f1ed5734db6950, type: 3}
   runtimeAnimatorController: {fileID: 9100000, guid: 58a5de292215c984abd290eb52f58e48, type: 2}
   baseSpeed: 4
-  startingWeaponConfig: {fileID: 11400000, guid: 75f40562637742d59c3029d3ed192b4b, type: 2}
+  startingWeaponConfig: {fileID: 11400000, guid: 99b584395d4f46caa32d5325aa5d5483, type: 2}
   maxHealth: 40
   defense: 0
   injuredInvincibilityDuration: 0.75
