@@ -111,6 +111,15 @@ public class Setting_Presenter : MonoBehaviour
         UIManager.Instance.HidePanel(UIPanelId.Setting);
     }
 
+    /// <summary>
+    /// 退出游戏前保存设置
+    /// </summary>
+    private void OnExitClicked()
+    {
+        SaveSettings();
+        Application.Quit();
+    }
+
     private void EnsureView()
     {
         if (view == null)
@@ -128,7 +137,7 @@ public class Setting_Presenter : MonoBehaviour
         AddSliderListener(view.sliderSound, OnSoundVolumeChanged);
         AddSliderListener(view.sliderMusic, OnMusicVolumeChanged);
         AddButtonListener(view.buttonBack, OnCloseClicked);
-        AddButtonListener(view.buttonExit, OnCloseClicked);
+        AddButtonListener(view.buttonExit, OnExitClicked);
     }
 
     private void RemoveViewListeners()
@@ -143,7 +152,7 @@ public class Setting_Presenter : MonoBehaviour
         RemoveSliderListener(view.sliderSound, OnSoundVolumeChanged);
         RemoveSliderListener(view.sliderMusic, OnMusicVolumeChanged);
         RemoveButtonListener(view.buttonBack, OnCloseClicked);
-        RemoveButtonListener(view.buttonExit, OnCloseClicked);
+        RemoveButtonListener(view.buttonExit, OnExitClicked);
     }
 
     /// <summary>
