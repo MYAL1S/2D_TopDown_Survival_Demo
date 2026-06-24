@@ -23,7 +23,7 @@
 | M4 自动攻击和战斗 | 已完成 | 自动索敌、攻击、伤害、死亡 |
 | M5 掉落和拾取 | 已完成 | 敌人死亡掉落、玩家吸附拾取、经验和回血效果 |
 | M6 Buff/Debuff/AOE | 已完成 | 状态效果、武器命中 Debuff、AOE 范围效果和对象池 |
-| M7 UI、调试和优化 | 未开始 | UI、对象池、调试信息、性能优化 |
+| M7 UI、调试和优化 | 已完成 | UI 管理、MVP 面板、玩家数据/设置持久化、关卡结算、音频管理、对象池和玩家血条 |
 | M8 文档整理和演示准备 | 未开始 | README、截图、演示说明 |
 
 ## 3. 开发环境
@@ -1055,7 +1055,98 @@ AOEWeaponAttackStrategy.TryExecute
 实际实现记录：
 
 ```text
-待 M7 完成后补充。
+状态：已完成
+
+M7 阶段实际完成内容如下：
+
+1. UI 架构整理
+   - 新增 `UIManager` 统一管理 UI 面板显隐。
+   - `UIManager` 首次调用时会创建并缓存 Canvas 与 EventSystem。
+   - 面板不再依赖场景上预放对象，而是通过预设体创建并挂载到 Canvas 根节点。
+   - UI 面板采用 MVP 思路拆分为 View / Presenter。
+   - View 调整为严格 Passive View，只保留手动绑定的控件引用，不包含刷新、格式化、监听和业务逻辑。
+   - `CharacterItem` 拆分为 `CharacterItem_View` 和 `CharacterItem_Presenter`，单个角色条目的渲染与点击回调由条目 Presenter 负责，`Player_Presenter` 只维护角色列表和购买/选择业务。
+
+2. 主菜单与关卡选择
+   - 新增 `StageConfig` ScriptableObject，用于保存关卡 id、关卡名、关卡 level、关卡图片、刷怪配置和关卡持续时间。
+   - `MainMenu_View` 只保留关卡名称、关卡 level、关卡图片、播放按钮等控件引用。
+   - `MainMenu_Presenter` 根据 `GameResources.StageConfigs` 切换并显示关卡信息。
+   - 点击 Play 后通过 `GameLaunchContext` 保存待进入关卡和当前选择角色，并在 Game 场景加载完成后配置 `Generator`。
+   - `Generator.SpawnSystem` 会根据当前关卡替换刷怪配置。
+   - `CharacterSelectionSystem` 会根据玩家当前选择角色生成对应玩家对象，并重新绑定摄像机跟随目标。
+
+3. 玩家数据与角色选择
+   - 新增 `PlayerData` 保存玩家金币、已解锁角色、已解锁关卡和当前选中角色。
+   - 新增 `PlayerDataManager` 负责加载、保存、修复和通知玩家数据变化。
+   - 玩家数据通过项目中的二进制序列化工具保存到本地。
+   - 角色选择面板会读取玩家本地数据，判断角色是否已解锁、是否已选中、金币是否足够购买。
+   - 未解锁角色显示价格，已解锁角色显示 Available 或 Selected。
+   - 解锁角色会扣除金币、写入本地数据并触发玩家数据变化事件。
+   - 选择角色会保存 `selectedCharacterId`，后续进入关卡时按该角色生成玩家。
+
+4. 关卡运行与结算
+   - 新增 `StageRuntimeManager` 管理当前关卡运行时间。
+   - 关卡时间随游戏时间推进，剩余时间变化时通过事件通知 UI。
+   - 时间到达配置时长后触发通关。
+   - 新增 `LevelManager` 管理关卡内金币、击杀数、暂停、恢复、退出、胜利和失败结算。
+   - 玩家拾取 `ItemEffectType.Gold` 类型掉落物时，`PickupSystem` 触发金币拾取事件，`LevelManager` 累加本局金币并通知 `Game_Presenter` 刷新金币文本。
+   - 敌人死亡时触发 `EnemyKilled` 事件，`LevelManager` 累加击杀数并通知 `Game_Presenter` 刷新击杀数文本。
+   - 游戏结束时无论胜利或失败都会显示 `ChestPanel`。
+   - `Chest_Presenter` 显示本局获得金币，点击 Take 后将奖励写入 `PlayerDataManager` 并返回 MainMenu 场景。
+
+5. 暂停、设置和音频
+   - `GamePanel` 暂停按钮会调用 `LevelManager.PauseGame()` 并显示 `PausePanel`。
+   - `PausePanel` 负责恢复游戏、退出当前关卡，以及显示音效/音乐设置。
+   - `SettingPanel` 只管理音频设置，不再承担不同场景下的暂停或退出职责。
+   - 新增 `SettingData` 与 `SettingDataManager`，用于保存音效开关、音乐开关、音效音量和音乐音量。
+   - 设置数据通过二进制序列化工具持久化到本地。
+   - 新增 `AudioConfig` ScriptableObject，将音乐和音效资源通过 id 缓存到 `GameResources`。
+   - 新增 `AudioManager` 懒汉单例，运行时自动创建并 `DontDestroyOnLoad`。
+   - `AudioManager` 统一负责背景音乐播放、音效播放、音量设置应用和场景加载后的默认音乐播放。
+   - 音效播放使用 `SoundEffect` 对象池复用，避免频繁创建和销毁音效 GameObject。
+
+6. 玩家血条与局内显示
+   - 新增 `PlayerHealthBar`，玩家第一次受伤后显示血条，并在生命变化时持续刷新。
+   - 血条不通过缩放实现，而是根据最大血量、当前血量和 Mask 的 X 轴长度计算偏移量，移动 `Healthbar Mask` 的本地 X 坐标。
+   - `Health` 新增生命变化事件，供血条等显示组件监听。
+   - `Game_Presenter` 负责局内金币、击杀数和计时器文本刷新。
+
+7. 资源与配置集中管理
+   - `GameResources` 增加玩家、关卡、音频等配置缓存。
+   - 外部系统通过配置 id 获取玩家、关卡和音频资源，降低场景硬引用。
+   - `StageConfig`、`PlayerConfig`、`AudioConfig` 均通过 ScriptableObject 管理，便于后续扩展更多关卡、角色和音频资源。
+
+8. 对象池与性能优化
+   - 敌人生成继续使用 `EnemySpawnManager` 和 `ComponentPool` 复用敌人实例。
+   - 发射物、掉落物、拾取特效、AOE 和音效均采用对象池或已有池化结构减少高频 Instantiate/Destroy。
+   - 音效对象池默认预热，播放结束后释放回池。
+   - UI 面板由 `UIManager` 缓存，避免重复查找和散落管理。
+
+9. 和原计划不一致的地方
+   - 原计划只写“显示玩家 HP”，实际实现为玩家受伤后显示头顶血条，并随生命变化自动更新。
+   - 原计划中的“显示生存时间”实际改为显示关卡剩余时间，并由 `StageRuntimeManager` 统一驱动。
+   - 原计划中的“显示当前 Buff”“显示敌人数量和 FPS”本阶段未做成正式 UI；当前重点落在主菜单、角色、关卡、暂停、设置、结算和核心局内信息。
+   - 原计划中的“调试信息”没有新增独立调试面板，主要通过系统事件、面板显示和编译验证确认链路。
+   - M7 实际范围扩展到了玩家数据持久化、关卡配置、音频配置、UI 管理器、结算流程和本地设置存档，为后续 M8 演示准备打基础。
+
+10. 验收结果
+   - 主菜单面板可通过 `UIManager` 创建和显示。
+   - Canvas 与 EventSystem 可由 `UIManager` 自动创建并缓存。
+   - 主菜单可切换关卡并显示关卡名、关卡 level 和关卡图片。
+   - 点击 Play 后可进入 Game 场景，并按当前选择关卡配置刷怪。
+   - 当前选择角色会在 Game 场景生成。
+   - 角色选择面板可显示已解锁、未解锁、Available、Selected 和价格状态。
+   - 未解锁角色可消耗金币解锁，已解锁角色可选择。
+   - 本局拾取金币后 GamePanel 金币文本会更新。
+   - 击杀敌人后 GamePanel 击杀数文本会更新。
+   - 关卡倒计时会随游戏时间更新，时间结束触发通关。
+   - 暂停按钮可打开 PausePanel，Back 可恢复游戏，Exit 可退出当前关卡。
+   - 游戏胜利或失败都会打开 ChestPanel。
+   - ChestPanel 可显示本局获得金币，Take 后金币写入玩家本地数据并返回 MainMenu。
+   - 设置面板和暂停面板可调整音乐/音效开关与音量，并持久化到本地。
+   - 背景音乐由 `AudioManager` 播放，音效通过对象池播放。
+   - 玩家受伤后血条显示，并随当前血量更新。
+   - View 层已调整为严格 Passive View，显示逻辑由 Presenter 负责。
 ```
 
 ## 13. 热更新接口实现计划
