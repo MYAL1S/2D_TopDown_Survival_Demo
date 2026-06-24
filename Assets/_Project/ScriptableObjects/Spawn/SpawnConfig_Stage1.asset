@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5ae52d9feead274b8d7f7cb6cd98395, type: 3}
+  m_Name: SpawnConfig_Stage1
+  m_EditorClassIdentifier: 
+  enemyResourceIds:
+  - enemy_bat
+  - enemy_bat_shade
+  - enemy_bug
+  timedEnemyResources:
+  - enemyResourceId: enemy_pumpkin
+    startTime: 20
+    endTime: 0
+  - enemyResourceId: enemy_shade
+    startTime: 30
+    endTime: 0
+  - enemyResourceId: enemy_fire_slime
+    startTime: 40
+    endTime: 0
+  spawnRateByTime:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1.8197937
+      inSlope: 0.009166666
+      outSlope: 0.009166666
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 600
+      value: 6
+      inSlope: 0.009166666
+      outSlope: 0.009166666
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxAliveByTime:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 6.666668
+      value: 49.999992
+      inSlope: 0.2
+      outSlope: 0.2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 600
+      value: 150
+      inSlope: 0.2
+      outSlope: 0.2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  batchCountByTime:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 6.6666718
+      value: 1.9685669
+      inSlope: 0.011666667
+      outSlope: 0.011666667
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 600
+      value: 8
+      inSlope: 0.011666667
+      outSlope: 0.011666667
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxSpawnPerFrame: 20
+  spawnMargin: 1.5
+  spawnZ: 0
+  spawnZOffset: 0.1

@@ -10,25 +10,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d5ae52d9feead274b8d7f7cb6cd98395, type: 3}
-  m_Name: SpawnConfig
+  m_Name: SpawnConfig_Stage2
   m_EditorClassIdentifier: 
   enemyResourceIds:
-  - enemy_bat
-  - enemy_bat_shade
-  - enemy_bug
-  timedEnemyResources: []
+  - enemy_eye
+  - enemy_jellyfish
+  - enemy_jellyfish_purple
+  timedEnemyResources:
+  - enemyResourceId: enemy_plant
+    startTime: 20
+    endTime: 0
+  - enemyResourceId: enemy_stag_beetle
+    startTime: 30
+    endTime: 0
+  - enemyResourceId: enemy_vampire_shade
+    startTime: 40
+    endTime: 0
   spawnRateByTime:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.5
-      inSlope: 0.009166666
-      outSlope: 0.009166666
+      value: 1.970131
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 600
       value: 6
@@ -36,8 +45,8 @@ MonoBehaviour:
       outSlope: 0.009166666
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -46,13 +55,13 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 30
-      inSlope: 0.2
-      outSlope: 0.2
+      value: 49.43396
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 600
       value: 150
@@ -60,8 +69,8 @@ MonoBehaviour:
       outSlope: 0.2
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -70,13 +79,13 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
-      inSlope: 0.011666667
-      outSlope: 0.011666667
+      value: 1.9795532
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 600
       value: 8
@@ -84,12 +93,12 @@ MonoBehaviour:
       outSlope: 0.011666667
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maxSpawnPerFrame: 12
+  maxSpawnPerFrame: 20
   spawnMargin: 1.5
   spawnZ: 0
   spawnZOffset: 0.1

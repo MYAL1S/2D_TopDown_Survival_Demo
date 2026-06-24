@@ -2,50 +2,58 @@ using UnityEngine;
 
 /// <summary>
 /// 角色选择系统
-/// 负责切换当前玩家角色
-/// 并维护活动玩家引用
+/// 根据角色配置 id 生成当前玩家，并维护场景中唯一的活动玩家引用
 /// </summary>
 [RequireComponent(typeof(CharacterSpawnManager))]
 [DisallowMultipleComponent]
 public class CharacterSelectionSystem : MonoBehaviour
 {
-    // 依赖角色生成器完成实际的玩家实例化
+    // 具体执行角色预制体实例化的生成器
     private CharacterSpawnManager characterSpawnManager;
 
-    // 当前场景中激活的玩家对象
+    // 当前场景中处于活动状态的玩家对象
     public Player ActivePlayer { get; private set; }
 
-    /// <summary>
-    /// 缓存同物体上的角色生成管理器
-    /// </summary>
     private void Awake()
     {
         characterSpawnManager = GetComponent<CharacterSpawnManager>();
     }
 
     /// <summary>
-    /// 使用默认出生点选择角色
+    /// 使用默认出生点选择并生成角色
     /// </summary>
+    /// <param name="playerResourceId">玩家角色配置 id</param>
+    /// <returns>新生成的玩家对象</returns>
     public Player SelectCharacter(string playerResourceId)
     {
         return SelectCharacter(playerResourceId, Vector3.zero);
     }
 
     /// <summary>
-    /// 选择角色
-    /// 先销毁旧玩家
-    /// 再生成新玩家并更新活动引用
+    /// 选择并生成角色
+    /// 生成新玩家前会销毁旧玩家，并将摄像机目标切换到新玩家
     /// </summary>
+    /// <param name="playerResourceId">玩家角色配置 id</param>
+    /// <param name="spawnPosition">玩家出生位置</param>
+    /// <returns>新生成的玩家对象</returns>
     public Player SelectCharacter(string playerResourceId, Vector3 spawnPosition)
     {
         if (ActivePlayer != null)
         {
-            CameraTargetBinder.Instance.ClearTarget();
+            if (CameraTargetBinder.Instance != null)
+            {
+                CameraTargetBinder.Instance.ClearTarget();
+            }
+
             Destroy(ActivePlayer.gameObject);
         }
 
         ActivePlayer = characterSpawnManager.SpawnCharacter(playerResourceId, spawnPosition);
-        CameraTargetBinder.Instance.SetTarget(ActivePlayer.transform);
+        if (ActivePlayer != null && CameraTargetBinder.Instance != null)
+        {
+            CameraTargetBinder.Instance.SetTarget(ActivePlayer.transform);
+        }
+
         return ActivePlayer;
     }
 }

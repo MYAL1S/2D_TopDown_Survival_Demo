@@ -3,70 +3,57 @@ using UnityEngine;
 
 /// <summary>
 /// 敌人刷怪系统
-/// 使用动画曲线控制随游戏进度动态变化的刷怪压力 维护活跃敌人列表
-/// 支持预算系统 平滑分配每帧的生成数量 并支持暂停/停止控制
+/// 根据 SpawnConfig 中的曲线随关卡时间动态生成敌人，并维护当前活动敌人列表
 /// </summary>
 [RequireComponent(typeof(EnemySpawnManager))]
 [DisallowMultipleComponent]
 public class SpawnSystem : MonoBehaviour
 {
     /// <summary>
-    /// 刷怪状态
+    /// 刷怪系统状态
     /// </summary>
     private enum SpawnState
     {
-        // 停止刷怪
-        // 重置时间与预算 清理活跃敌人列表
+        // 停止刷怪，时间和预算会被重置
         Stopped,
-        // 正常刷怪
-        // 累积时间与预算 按曲线计算生成数量 执行生成
+        // 正常刷怪，按时间累计刷怪预算
         Running,
-        // 暂停刷怪
-        // 保持状态与预算 不重置已累积时间
+        // 暂停刷怪，保留当前时间与预算
         Paused
     }
 
-    // 生成配置 ScriptableObject
+    // 当前使用的刷怪配置
     [SerializeField]
     private SpawnConfig spawnConfig;
 
+    // 是否在 Start 时自动开始刷怪
     [SerializeField]
     private bool startOnPlay = true;
 
-    // 活跃敌人字典
-    // 键为 InstanceID
+    // 当前活动敌人字典，键为敌人的 InstanceID
     private readonly Dictionary<int, Enemy> activeEnemies = new Dictionary<int, Enemy>();
-    // 待清理的死亡敌人 ID 列表
-    // 用于避免在迭代字典时修改其结构
+    // 已死亡敌人 id 列表，统一在 Update 中从活动字典移除
     private readonly List<int> deadEnemyIds = new List<int>();
 
-    // 敌人生成管理器
-    // 负责实例化与对象池管理
+    // 敌人生成管理器，负责实例化和对象池复用
     private EnemySpawnManager enemySpawnManager;
 
-    // 游戏已运行的总时间
-    // 用于从曲线中查询动态参数
+    // 当前刷怪系统已运行时间
     private float elapsedTime;
-    // 生成预算累积值
-    // 表示当前可生成的敌人份数 可能为小数
+    // 刷怪预算累计值，允许按小数速率平滑生成敌人
     private float spawnBudget;
     private SpawnState spawnState = SpawnState.Stopped;
 
     public int ActiveEnemyCount => activeEnemies.Count;
     public bool IsSpawning => spawnState == SpawnState.Running;
     public bool IsPaused => spawnState == SpawnState.Paused;
+    public SpawnConfig CurrentSpawnConfig => spawnConfig;
 
-    /// <summary>
-    /// 缓存敌人生成管理器引用
-    /// </summary>
     private void Awake()
     {
         enemySpawnManager = GetComponent<EnemySpawnManager>();
     }
 
-    /// <summary>
-    /// 初始化资源引用并根据配置决定是否自动开始刷
-    /// </summary>
     private void Start()
     {
         if (GameResources.Instance == null)
@@ -103,8 +90,24 @@ public class SpawnSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// 暂停当前刷怪
-    /// 保持状态与预算 不重置已累积时间
+    /// 切换当前关卡使用的刷怪配置
+    /// </summary>
+    /// <param name="config">新的刷怪配置</param>
+    /// <param name="startImmediately">设置完成后是否立即开始刷怪</param>
+    public void SetSpawnConfig(SpawnConfig config, bool startImmediately)
+    {
+        StopSpawning();
+        ClearActiveEnemies();
+        spawnConfig = config;
+
+        if (startImmediately)
+        {
+            StartSpawning();
+        }
+    }
+
+    /// <summary>
+    /// 暂停刷怪，但保留已经累计的时间和预算
     /// </summary>
     public void PauseSpawning()
     {
@@ -124,10 +127,6 @@ public class SpawnSystem : MonoBehaviour
         spawnBudget = 0f;
     }
 
-    /// <summary>
-    /// 每帧更新刷怪逻辑
-    /// 清理死亡敌人、累积时间、更新生成预算、计算生成数量并执行生成
-    /// </summary>
     private void Update()
     {
         CleanupDeadEnemies();
@@ -147,17 +146,14 @@ public class SpawnSystem : MonoBehaviour
 
         elapsedTime += Time.deltaTime;
 
-        // 获取当前允许的最大活跃敌人数（随时间推移增加）
         int maxAlive = spawnConfig.GetMaxAlive(elapsedTime);
         if (activeEnemies.Count >= maxAlive)
         {
             return;
         }
 
-        // 根据当前刷怪速率累积生成预算（每秒的生成份数）
         spawnBudget += spawnConfig.GetSpawnRate(elapsedTime) * Time.deltaTime;
 
-        // 计算当前剩余的生成容量并综合约束得到本帧生成数量
         int spawnCapacity = maxAlive - activeEnemies.Count;
         int spawnCount = Mathf.Min(
             Mathf.FloorToInt(spawnBudget),
@@ -170,19 +166,18 @@ public class SpawnSystem : MonoBehaviour
             return;
         }
 
-        // 本帧内按计算数量逐个生成敌人
         for (int i = 0; i < spawnCount; i++)
         {
             SpawnEnemy(mainCamera, playerTarget);
         }
 
-        // 扣除已使用的预算
         spawnBudget -= spawnCount;
     }
 
     /// <summary>
-    /// 查找并返回标记为 "Player" 的玩家对象的 Transform（作为敌人追踪目标）
+    /// 查找当前玩家位置，作为敌人追踪目标
     /// </summary>
+    /// <returns>玩家 Transform，找不到时返回 null</returns>
     private Transform FindPlayerTarget()
     {
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -190,10 +185,7 @@ public class SpawnSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// 从资源池中随机选择敌人配置
-    /// 计算屏幕外生成点
-    /// 并请求生成管理器创建敌人
-    /// 生成成功后将敌人加入活跃字典以便管理
+    /// 从资源配置中随机选择敌人，并在屏幕外生成
     /// </summary>
     private void SpawnEnemy(Camera mainCamera, Transform playerTarget)
     {
@@ -218,14 +210,14 @@ public class SpawnSystem : MonoBehaviour
             return;
         }
 
-        // 将新生成的敌人加入活跃字典
         activeEnemies[enemy.GetInstanceID()] = enemy;
     }
 
     /// <summary>
-    /// 根据相机视野计算一个在屏幕外的随机位置
-    /// 用作敌人出生点（上、下、左、右四个方向随机）
+    /// 根据相机视野计算一个屏幕外随机出生点
     /// </summary>
+    /// <param name="mainCamera">主相机</param>
+    /// <returns>屏幕外出生位置</returns>
     private Vector3 GetRandomOffScreenPosition(Camera mainCamera)
     {
         float halfHeight = mainCamera.orthographicSize;
@@ -240,28 +232,24 @@ public class SpawnSystem : MonoBehaviour
 
         switch (Random.Range(0, 4))
         {
-            // 上方
             case 0:
                 return new Vector3(Random.Range(minX - margin, maxX + margin), maxY + margin, spawnConfig.SpawnZ);
 
-            // 下方
             case 1:
                 return new Vector3(Random.Range(minX - margin, maxX + margin), minY - margin, spawnConfig.SpawnZ);
 
-            // 左方
             case 2:
                 return new Vector3(minX - margin, Random.Range(minY - margin, maxY + margin), spawnConfig.SpawnZ);
 
-            // 右方
             default:
                 return new Vector3(maxX + margin, Random.Range(minY - margin, maxY + margin), spawnConfig.SpawnZ);
         }
     }
 
     /// <summary>
-    /// 将敌人实例 ID 添加到待删除列表中 由 Update 循环统一清理
+    /// 记录已死亡敌人，稍后统一从活动敌人字典中移除
     /// </summary>
-    /// <param name="instanceID"></param>
+    /// <param name="instanceID">敌人实例 id</param>
     public void AddToDeadEnemies(int instanceID)
     {
         if (!deadEnemyIds.Contains(instanceID))
@@ -271,8 +259,7 @@ public class SpawnSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// 清理已死亡或销毁的敌人
-    /// 先记录 ID 再批量清理 以避免在迭代时修改字典
+    /// 批量清理已死亡敌人，避免遍历活动敌人字典时修改字典结构
     /// </summary>
     private void CleanupDeadEnemies()
     {
@@ -285,9 +272,27 @@ public class SpawnSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// 检查是否具备开始刷怪的条件
-    /// 配置、资源和管理器都存在
+    /// 清理当前活动敌人
+    /// 切换关卡配置或退出关卡时调用
     /// </summary>
+    public void ClearActiveEnemies()
+    {
+        foreach (Enemy enemy in activeEnemies.Values)
+        {
+            if (enemy != null)
+            {
+                Destroy(enemy.gameObject);
+            }
+        }
+
+        activeEnemies.Clear();
+        deadEnemyIds.Clear();
+    }
+
+    /// <summary>
+    /// 检查当前是否满足开始刷怪的条件
+    /// </summary>
+    /// <returns>可以开始刷怪返回 true</returns>
     private bool CanSpawn()
     {
         if (spawnConfig == null)

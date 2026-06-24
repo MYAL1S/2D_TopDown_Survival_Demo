@@ -20,5 +20,7 @@ MonoBehaviour:
   damagePerTick: 2
   tickOnStart: 1
   maxTargetsPerTick: 128
-  statusEffects: []
+  statusEffects:
+  - {fileID: 11400000, guid: 5d7016d244fe4e946b4966729a5c04bb, type: 2}
+  - {fileID: 11400000, guid: b52dfb944c228d447914c5b5b608a9a8, type: 2}
   zonePrefab: {fileID: 7689937814049821681, guid: 055197c34185786439ddc5e54671cb30, type: 3}

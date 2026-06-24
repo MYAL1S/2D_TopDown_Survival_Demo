@@ -23,6 +23,8 @@ GameObject:
   - component: {fileID: -4569079189433690635}
   - component: {fileID: 5320828443473843679}
   - component: {fileID: 6472235743163578792}
+  - component: {fileID: 2282402701425848515}
+  - component: {fileID: 1173802906444197313}
   m_Layer: 7
   m_Name: Enemy Stag Beetle
   m_TagString: Untagged
@@ -209,6 +211,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a7f9765d0d42c68fd66c7535ce0fb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &4770609215580173158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,9 +254,7 @@ MonoBehaviour:
   stopDistance: 0.15
   separationDistance: 0
   separationWeight: 1.25
-  separationLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
+  separationUpdateInterval: 0.1
   maxSeparationChecks: 12
 --- !u!114 &6472235743163578792
 MonoBehaviour:
@@ -263,6 +266,31 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 859d67cef73d40b4bc52da9f98a1f67f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2282402701425848515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df36f0abfa23ad8489c6cb901116700e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseMoveSpeed: 0
+--- !u!114 &1173802906444197313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1090571174421192766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad5c8f50f3503f947a81efcd11749a31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6301264650555698757

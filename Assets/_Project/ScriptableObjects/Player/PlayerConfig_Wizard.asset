@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceId: player_wizard
   playerCharacterName: Wizard
+  characterIcon: {fileID: 1192330266, guid: 189bbc9c53a834c47aa0184fdaa26794, type: 3}
+  unlockPrice: 10
   playerPrefab: {fileID: 2921880940271959218, guid: e46276dd75482da438f1ed5734db6950, type: 3}
   runtimeAnimatorController: {fileID: 9100000, guid: 58a5de292215c984abd290eb52f58e48, type: 2}
   baseSpeed: 4
   startingWeaponConfig: {fileID: 11400000, guid: 99b584395d4f46caa32d5325aa5d5483, type: 2}
+  defaultWeaponIcon: {fileID: 21300000, guid: 41b11da08bfbd71468e55b3dc58c105d, type: 3}
   maxHealth: 40
   defense: 0
   injuredInvincibilityDuration: 0.75

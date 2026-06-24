@@ -26,8 +26,8 @@ MonoBehaviour:
   onHitStatusEffects:
   - {fileID: 11400000, guid: b52dfb944c228d447914c5b5b608a9a8, type: 2}
   - {fileID: 11400000, guid: 5d7016d244fe4e946b4966729a5c04bb, type: 2}
-  onHitStatusApplyChance: 1
+  onHitStatusApplyChance: 0.5
   projectileSpeed: 8
   projectileHitRadius: 0.2
-  projectilePrefab: {fileID: 7689937814049821681, guid: 98fb7fc0eca131b4aa0db1df92577fde, type: 3}
+  projectilePrefab: {fileID: 7689937814049821681, guid: 055197c34185786439ddc5e54671cb30, type: 3}
   piercingDamageInterval: 0.2

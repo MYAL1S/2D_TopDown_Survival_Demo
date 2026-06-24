@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7745100814903104329
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2814328701409632733}
+  - component: {fileID: 775257904738740222}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2814328701409632733
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7745100814903104329}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 555.97815, y: 276.54663, z: 5.7694387}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &775257904738740222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7745100814903104329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71b8631404734b91b5c7b426cccf89e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasPrefab: {fileID: 5100156672265191795, guid: 07744bca8f8254e4da741899307aa6db, type: 3}
+  eventSystemPrefab: {fileID: 7330387811608231131, guid: c8a3c0f972104124897ea4e9c2b3c70c, type: 3}
+  panelBindings:
+  - panelId: 0
+    panelPrefab: {fileID: 3049153992332756363, guid: 0a747bd1fa6c31b4ab6f2d888ffe28f0, type: 3}
+    showOnCreate: 0
+  - panelId: 1
+    panelPrefab: {fileID: 8363229848275114113, guid: e013781303bc9fc4abf420a8ebbd98b8, type: 3}
+    showOnCreate: 0
+  - panelId: 2
+    panelPrefab: {fileID: 5243343441193388238, guid: 908e6dc47a8f3894082454ba41353dae, type: 3}
+    showOnCreate: 0
+  - panelId: 3
+    panelPrefab: {fileID: 1298019542069754898, guid: d42bea72536fe154c81d5492b9d4116d, type: 3}
+    showOnCreate: 0
+  - panelId: 4
+    panelPrefab: {fileID: 7662994843190312092, guid: a8f5a5d2e8011b54b8b69824607583e6, type: 3}
+    showOnCreate: 0
+  - panelId: 5
+    panelPrefab: {fileID: 591971303066526626, guid: 0292bac8ea246b24398d0e08b3d6e563, type: 3}
+    showOnCreate: 0

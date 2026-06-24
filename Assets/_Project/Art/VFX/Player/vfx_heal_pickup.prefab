@@ -4899,7 +4899,7 @@ GameObject:
   - component: {fileID: 4927950413868746771}
   - component: {fileID: 5812073770260513106}
   - component: {fileID: 5882113247840969931}
-  - component: {fileID: 3786028370832443961}
+  - component: {fileID: 4750628249247756131}
   m_Layer: 0
   m_Name: vfx_heal_pickup
   m_TagString: Untagged
@@ -9721,7 +9721,7 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &3786028370832443961
+--- !u!114 &4750628249247756131
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9730,10 +9730,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2840114444586249407}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4a30ceb24ca9c34e8abd861e2dfb4f6, type: 3}
+  m_Script: {fileID: 11500000, guid: c1000000000000000000000000000010, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  offset: {x: 0, y: 0.1, z: 0}
+  fallbackLifetime: 2
 --- !u!1 &7358226720757990992
 GameObject:
   m_ObjectHideFlags: 0

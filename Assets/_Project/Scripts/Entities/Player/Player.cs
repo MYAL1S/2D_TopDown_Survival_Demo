@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 /// <summary>
-/// 玩家类 主要用于管理玩家的各个组件
+/// 玩家运行时聚合类
+/// 统一缓存玩家身上的常用组件引用，并在生成时补齐缺失的运行时组件
 /// </summary>
 #region REQUIRE COMPONENTS
 [RequireComponent(typeof(MovementByVelocityEvent))]
@@ -20,6 +18,7 @@ using UnityEngine;
 [RequireComponent(typeof(AttackEvent))]
 [RequireComponent(typeof(PlayerDamageReceiver))]
 [RequireComponent(typeof(PlayerInjuredHandler))]
+[RequireComponent(typeof(PlayerHealthBar))]
 [RequireComponent(typeof(PlayerDeathHandler))]
 [RequireComponent(typeof(PlayerWeaponSystem))]
 [RequireComponent(typeof(PlayerPickupSystem))]
@@ -45,6 +44,7 @@ public class Player : MonoBehaviour
     public AttackEvent AttackEvent { get; private set; }
     public PlayerDamageReceiver PlayerDamageReceiver { get; private set; }
     public PlayerInjuredHandler PlayerInjuredHandler { get; private set; }
+    public PlayerHealthBar PlayerHealthBar { get; private set; }
     public PlayerDeathHandler PlayerDeathHandler { get; set; }
     public PlayerWeaponSystem PlayerWeaponSystem { get; private set; }
     public PlayerPickupSystem PlayerPickupSystem { get; private set; }
@@ -52,15 +52,15 @@ public class Player : MonoBehaviour
     public RuntimeStats RuntimeStats { get; private set; }
     public StatusEffectManager StatusEffectManager { get; private set; }
 
-
-    void Awake()
+    private void Awake()
     {
         EnsureRuntimeComponents();
         CacheComponents();
     }
 
     /// <summary>
-    /// 确保玩家对象上存在所有必要的组件 如果缺少则添加
+    /// 确保玩家对象上存在所有运行时需要的组件
+    /// 这样角色预制体缺少新系统组件时，也能在生成后自动补齐
     /// </summary>
     public void EnsureRuntimeComponents()
     {
@@ -77,6 +77,7 @@ public class Player : MonoBehaviour
         EnsureComponent<AttackEvent>();
         EnsureComponent<PlayerDamageReceiver>();
         EnsureComponent<PlayerInjuredHandler>();
+        EnsureComponent<PlayerHealthBar>();
         EnsureComponent<PlayerDeathHandler>();
         EnsureComponent<PlayerWeaponSystem>();
         EnsureComponent<PlayerPickupSystem>();
@@ -85,13 +86,19 @@ public class Player : MonoBehaviour
         EnsureComponent<StatusEffectManager>();
     }
 
+    /// <summary>
+    /// 如果当前对象缺少指定组件，则自动添加
+    /// </summary>
     private void EnsureComponent<T>() where T : Component
     {
         if (GetComponent<T>() == null)
+        {
             gameObject.AddComponent<T>();
+        }
     }
+
     /// <summary>
-    /// 缓存玩家对象上所有必要组件的引用 以便快速访问
+    /// 缓存玩家对象上的常用组件引用，减少后续重复 GetComponent
     /// </summary>
     public void CacheComponents()
     {
@@ -103,7 +110,7 @@ public class Player : MonoBehaviour
             PlayerController = GetComponent<PlayerController>();
         if (PlayerAnimator == null)
             PlayerAnimator = GetComponent<PlayerAnimator>();
-        if (MovementByVelocityEvent== null)
+        if (MovementByVelocityEvent == null)
             MovementByVelocityEvent = GetComponent<MovementByVelocityEvent>();
         if (MovementByVelocity == null)
             MovementByVelocity = GetComponent<MovementByVelocity>();
@@ -123,6 +130,8 @@ public class Player : MonoBehaviour
             PlayerDamageReceiver = GetComponent<PlayerDamageReceiver>();
         if (PlayerInjuredHandler == null)
             PlayerInjuredHandler = GetComponent<PlayerInjuredHandler>();
+        if (PlayerHealthBar == null)
+            PlayerHealthBar = GetComponent<PlayerHealthBar>();
         if (PlayerDeathHandler == null)
             PlayerDeathHandler = GetComponent<PlayerDeathHandler>();
         if (PlayerWeaponSystem == null)
@@ -137,6 +146,11 @@ public class Player : MonoBehaviour
             StatusEffectManager = GetComponent<StatusEffectManager>();
     }
 
+    /// <summary>
+    /// 批量启用或禁用玩家运行时组件
+    /// 可用于结算、暂停或特殊状态下统一控制玩家行为
+    /// </summary>
+    /// <param name="enabled">是否启用组件</param>
     public void SetAllComponentsEnabled(bool enabled)
     {
         if (Animator != null)
@@ -165,6 +179,8 @@ public class Player : MonoBehaviour
             PlayerDamageReceiver.enabled = enabled;
         if (PlayerInjuredHandler != null)
             PlayerInjuredHandler.enabled = enabled;
+        if (PlayerHealthBar != null)
+            PlayerHealthBar.enabled = enabled;
         if (PlayerDeathHandler != null)
             PlayerDeathHandler.enabled = enabled;
         if (PlayerWeaponSystem != null)

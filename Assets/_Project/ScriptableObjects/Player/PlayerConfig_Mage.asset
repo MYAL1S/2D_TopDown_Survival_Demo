@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceId: player_mage
   playerCharacterName: Mage
+  characterIcon: {fileID: 1192330266, guid: 0a884b8b0d970f442998a4f3f596c381, type: 3}
+  unlockPrice: 0
   playerPrefab: {fileID: 2921880940271959218, guid: 54121bc69e709ef4aae3deb8291032d8, type: 3}
   runtimeAnimatorController: {fileID: 9100000, guid: 94a86386fc0444b4da7da44db7c6db90, type: 2}
   baseSpeed: 2
   startingWeaponConfig: {fileID: 11400000, guid: 5551781391e835949a26563324a94f92, type: 2}
+  defaultWeaponIcon: {fileID: 21300000, guid: 994260112a138d7429ef45abb62a600a, type: 3}
   maxHealth: 50
   defense: 0
   injuredInvincibilityDuration: 0.75

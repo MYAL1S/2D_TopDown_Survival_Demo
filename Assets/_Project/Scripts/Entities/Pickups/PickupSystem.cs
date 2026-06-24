@@ -1,26 +1,28 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
-/// 拾取系统 
-/// 负责管理游戏中的拾取物品的注册 注销 效果应用和视觉反馈
+/// 拾取系统。
+/// 负责记录场景中的活动拾取物，应用拾取效果，并通过对象池播放拾取反馈特效
 /// </summary>
 public static class PickupSystem
 {
+    // 当前场景中可被玩家吸附或拾取的物品列表
     private static readonly List<PickupController> activePickups = new List<PickupController>();
+    // 按特效预制体缓存对象池，避免拾取频繁实例化特效对象
     private static readonly Dictionary<int, ComponentPool<PickupEffectController>> effectPools = new Dictionary<int, ComponentPool<PickupEffectController>>();
 
+    // 未使用拾取特效对象的根节点
     private static Transform effectPoolRoot;
+    // 正在播放拾取特效对象的根节点
     private static Transform activeEffectRoot;
 
     public static IReadOnlyList<PickupController> ActivePickups => activePickups;
 
     /// <summary>
-    /// 注册一个新的拾取物品到系统中 
-    /// 将其添加到活动拾取物品列表中 以便系统能够跟踪和管理它
+    /// 注册一个拾取物，供玩家拾取系统扫描
     /// </summary>
-    /// <param name="pickup"></param>
+    /// <param name="pickup">拾取物控制器</param>
     public static void RegisterPickup(PickupController pickup)
     {
         if (pickup != null && !activePickups.Contains(pickup))
@@ -30,20 +32,21 @@ public static class PickupSystem
     }
 
     /// <summary>
-    /// 从系统中注销一个拾取物品
+    /// 注销一个拾取物
     /// </summary>
-    /// <param name="pickup"></param>
+    /// <param name="pickup">拾取物控制器</param>
     public static void UnregisterPickup(PickupController pickup)
     {
         activePickups.Remove(pickup);
     }
 
     /// <summary>
-    /// 完成拾取物品的效果应用和视觉反馈
+    /// 完成拾取物收集流程
+    /// 先应用数值效果，再播放拾取视觉反馈
     /// </summary>
-    /// <param name="player">玩家</param>
-    /// <param name="itemConfig">物品配置</param>
-    /// <param name="amount">数量</param>
+    /// <param name="player">拾取该物品的玩家。</param>
+    /// <param name="itemConfig">物品配置。</param>
+    /// <param name="amount">拾取数量。</param>
     public static void CompletePickup(Player player, ItemConfig itemConfig, int amount)
     {
         ApplyPickup(player, itemConfig, amount);
@@ -51,68 +54,63 @@ public static class PickupSystem
     }
 
     /// <summary>
-    /// 根据物品配置和数量应用拾取效果到玩家
+    /// 根据物品配置将拾取效果应用到玩家或关卡统计
     /// </summary>
-    /// <param name="player">玩家</param>
+    /// <param name="player">拾取该物品的玩家</param>
     /// <param name="itemConfig">物品配置</param>
-    /// <param name="amount">数量</param>
+    /// <param name="amount">拾取数量</param>
     public static void ApplyPickup(Player player, ItemConfig itemConfig, int amount)
     {
-        // 确保玩家和物品配置有效
         if (player == null || itemConfig == null)
         {
             return;
         }
 
-        // 计算总效果量 确保至少为1
         float totalAmount = Mathf.Max(1, amount) * itemConfig.EffectAmount;
 
-        // 根据物品效果类型应用对应的效果
         switch (itemConfig.EffectType)
         {
-            // 经验值效果
             case ItemEffectType.Experience:
                 if (player.PlayerProgress != null)
                 {
-                    // 将总效果量四舍五入为整数并添加到玩家的经验值中
                     player.PlayerProgress.AddExperience(Mathf.RoundToInt(totalAmount));
                 }
                 break;
+
             case ItemEffectType.Score:
                 if (player.PlayerProgress != null)
                 {
-                    // 将总效果量四舍五入为整数并添加到玩家的经验值中
                     player.PlayerProgress.AddScore(Mathf.RoundToInt(totalAmount));
                 }
                 break;
 
-            // 治疗效果
             case ItemEffectType.Heal:
                 if (player.Health != null)
                 {
-                    // 将总效果量应用为治疗量 恢复玩家的生命值
                     player.Health.Heal(totalAmount);
                 }
+                break;
+
+            case ItemEffectType.Gold:
+                // 金币属于本局收益，由 LevelManager 监听后刷新 GamePanel 并在结算时持久化
+                EventCenter.Instance.EventTrigger(E_EventType.GoldPickedUp, Mathf.RoundToInt(totalAmount));
                 break;
         }
     }
 
     /// <summary>
-    /// 根据物品配置播放拾取效果的视觉反馈
+    /// 播放拾取物配置中的视觉反馈特效
     /// </summary>
-    /// <param name="player">玩家</param>
+    /// <param name="player">拾取该物品的玩家</param>
     /// <param name="itemConfig">物品配置</param>
     private static void PlayPickupEffect(Player player, ItemConfig itemConfig)
     {
-        // 确保玩家和物品配置有效且配置中包含拾取效果预制体
         if (player == null || itemConfig == null || itemConfig.PickupEffectPrefab == null)
         {
             return;
         }
 
-        // 从物品配置中获取拾取效果预制体
         GameObject effectPrefab = itemConfig.PickupEffectPrefab;
-        // 从对象池中获取一个拾取效果实例 将其放置在玩家位置并设置为活动状态
         PickupEffectController effect = GetEffectPool(effectPrefab).Get(
             player.transform.position,
             Quaternion.identity,
@@ -122,39 +120,33 @@ public static class PickupSystem
     }
 
     /// <summary>
-    /// 将拾取效果实例释放回对象池 
-    /// 或者如果没有池则将其禁用并放回场景中
+    /// 将拾取特效实例释放回对应对象池
     /// </summary>
-    /// <param name="effectPrefab">效果预制体</param>
-    /// <param name="effect">效果控制器</param>
+    /// <param name="effectPrefab">特效预制体</param>
+    /// <param name="effect">特效控制器实例</param>
     private static void ReleasePickupEffect(GameObject effectPrefab, PickupEffectController effect)
     {
-        // 确保效果控制器有效
         if (effect == null)
         {
             return;
         }
 
-        // 获取效果预制体的池键  
         int poolKey = GetEffectPoolKey(effectPrefab);
-        // 并尝试从池字典中获取对应的对象池 如果找到对应的池 则将效果实例释放回池中
         if (effectPools.TryGetValue(poolKey, out ComponentPool<PickupEffectController> pool))
         {
             pool.Release(effect);
             return;
         }
 
-        // 如果没有找到对应的池
-        // 则将效果实例禁用并将其父对象设置为效果池根对象 以便在场景中组织和管理
         effect.gameObject.SetActive(false);
         effect.transform.SetParent(GetEffectPoolRoot());
     }
 
     /// <summary>
-    /// 获取指定效果预制体的对象池 如果池不存在则创建一个新的池
+    /// 获取指定特效预制体对应的对象池，不存在时创建
     /// </summary>
-    /// <param name="effectPrefab">效果预制体</param>
-    /// <returns></returns>
+    /// <param name="effectPrefab">特效预制体</param>
+    /// <returns>拾取特效对象池</returns>
     private static ComponentPool<PickupEffectController> GetEffectPool(GameObject effectPrefab)
     {
         int poolKey = GetEffectPoolKey(effectPrefab);
@@ -171,11 +163,10 @@ public static class PickupSystem
     }
 
     /// <summary>
-    /// 确保效果对象具有拾取效果控制器组件 
-    /// 如果对象已经具有该组件 则返回现有组件 否则添加一个新的组件并返回它
+    /// 确保特效实例上存在 PickupEffectController
     /// </summary>
-    /// <param name="effectObject">效果对象</param>
-    /// <returns></returns>
+    /// <param name="effectObject">特效实例对象</param>
+    /// <returns>拾取特效控制器</returns>
     private static PickupEffectController EnsurePickupEffectRuntimeComponents(GameObject effectObject)
     {
         PickupEffectController controller = effectObject.GetComponent<PickupEffectController>();
@@ -183,10 +174,9 @@ public static class PickupSystem
     }
 
     /// <summary>
-    /// 获取效果池根对象 用于组织场景中的效果实例 
-    /// 如果根对象不存在则创建一个新的对象作为根对象
+    /// 获取未使用特效实例的对象池根节点
     /// </summary>
-    /// <returns></returns>
+    /// <returns>对象池根节点</returns>
     private static Transform GetEffectPoolRoot()
     {
         if (effectPoolRoot == null)
@@ -199,12 +189,11 @@ public static class PickupSystem
     }
 
     /// <summary>
-    /// 获取活动的拾取效果根对象 用于组织场景中的拾取效果实例
+    /// 获取正在播放的拾取特效根节点
     /// </summary>
-    /// <returns></returns>
+    /// <returns>活动特效根节点</returns>
     private static Transform GetActiveEffectRoot()
     {
-        // 如果活动效果根对象不存在 则创建一个新的对象并将其作为根对象
         if (activeEffectRoot == null)
         {
             GameObject activeRootObject = new GameObject("Active Pickup Effects");
@@ -217,11 +206,10 @@ public static class PickupSystem
     }
 
     /// <summary>
-    /// 获取效果预制体的池键 
-    /// 通过预制体的实例ID生成一个唯一的整数键 如果预制体为null 则返回0
+    /// 根据特效预制体实例 id 生成对象池键
     /// </summary>
-    /// <param name="effectPrefab">效果预制体</param>
-    /// <returns></returns>
+    /// <param name="effectPrefab">特效预制体</param>
+    /// <returns>对象池键</returns>
     private static int GetEffectPoolKey(GameObject effectPrefab)
     {
         return effectPrefab != null ? effectPrefab.GetInstanceID() : 0;

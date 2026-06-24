@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 #region REQUIREMENTS
@@ -5,16 +6,25 @@ using UnityEngine;
 [RequireComponent(typeof(DeathEvent))]
 #endregion
 [DisallowMultipleComponent]
+/// <summary>
+/// 通用生命值组件
+/// 负责管理当前生命、最大生命、防御、受伤事件、死亡事件以及生命变化通知
+/// </summary>
 public class Health : MonoBehaviour
 {
+    // 最大生命值，至少为 1
     [Min(1f)]
     private float maxHealth = 1f;
 
+    // 防御值，会从受到的伤害中扣除
     [Min(0f)]
     private float defense;
 
     private InjuredEvent injuredEvent;
     private DeathEvent deathEvent;
+
+    // 生命值发生变化时触发，玩家血条通过该事件刷新显示
+    public event Action<Health> OnHealthChanged;
 
     public float MaxHealth => maxHealth;
     public float CurrentHealth { get; private set; }
@@ -33,10 +43,10 @@ public class Health : MonoBehaviour
     }
 
     /// <summary>
-    /// 初始化生命值组件 设置最大生命值和防御力 并重置当前生命值为最大生命值
+    /// 初始化生命组件，并重置当前生命到最大值
     /// </summary>
     /// <param name="maxHealth">最大生命值</param>
-    /// <param name="defense">防御力</param>
+    /// <param name="defense">防御值</param>
     public void Initialize(float maxHealth, float defense = 0f)
     {
         this.maxHealth = Mathf.Max(1f, maxHealth);
@@ -45,21 +55,20 @@ public class Health : MonoBehaviour
     }
 
     /// <summary>
-    /// 重置当前生命值为最大生命值 并将存活状态设置为 true
+    /// 将当前生命恢复到最大值，并标记为存活
     /// </summary>
     public void ResetHealth()
     {
         CurrentHealth = maxHealth;
         IsAlive = true;
+        NotifyHealthChanged();
     }
 
     /// <summary>
-    /// 对生命值组件造成伤害 
-    /// 根据防御力计算最终伤害值 
-    /// 并更新当前生命值 如果当前生命值降至 0 或以下 
-    /// 则触发死亡事件
+    /// 对该生命组件造成伤害
+    /// 伤害会先扣除防御值，至少造成 1 点伤害；生命归零时触发死亡事件
     /// </summary>
-    /// <param name="amount"></param>
+    /// <param name="amount">原始伤害值。</param>
     public void TakeDamage(float amount)
     {
         if (!IsAlive)
@@ -70,6 +79,7 @@ public class Health : MonoBehaviour
         int finalDamage = Mathf.Max(1, Mathf.RoundToInt(amount - defense));
         CurrentHealth = Mathf.Max(0f, CurrentHealth - finalDamage);
         injuredEvent.CallInjuredEvent(finalDamage);
+        NotifyHealthChanged();
 
         if (CurrentHealth <= 0f)
         {
@@ -78,36 +88,31 @@ public class Health : MonoBehaviour
     }
 
     /// <summary>
-    /// 治疗方法
+    /// 治疗当前对象
     /// </summary>
-    /// <param name="amount">治疗的血量</param>
-    /// <returns></returns>
+    /// <param name="amount">尝试恢复的生命值</param>
+    /// <returns>实际恢复的生命值。</returns>
     public float Heal(float amount)
     {
-        // 只有当生命值组件处于存活状态时才允许治疗
         if (!IsAlive)
         {
             return 0f;
         }
 
         float healAmount = Mathf.Max(0f, amount);
-        // 如果治疗量小于等于 0 或者当前生命值已经满了 就不进行治疗
         if (healAmount <= 0f || CurrentHealth >= maxHealth)
         {
             return 0f;
         }
 
-        // 计算实际治疗量 
         float previousHealth = CurrentHealth;
-        // 将当前生命值增加治疗量但不超过最大生命值 
         CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + healAmount);
-        // 返回实际治疗的血量
+        NotifyHealthChanged();
         return CurrentHealth - previousHealth;
     }
 
     /// <summary>
-    /// 提供一个直接杀死生命值组件的方法 
-    /// 将当前生命值设置为 0 并触发死亡事件
+    /// 直接击杀当前对象
     /// </summary>
     public void Kill()
     {
@@ -117,12 +122,20 @@ public class Health : MonoBehaviour
         }
 
         CurrentHealth = 0f;
+        NotifyHealthChanged();
         Die();
     }
 
     /// <summary>
-    /// 死亡逻辑 
-    /// 将存活状态设置为 false 并触发死亡事件
+    /// 通知外部生命值发生变化
+    /// </summary>
+    private void NotifyHealthChanged()
+    {
+        OnHealthChanged?.Invoke(this);
+    }
+
+    /// <summary>
+    /// 执行死亡逻辑，并触发 DeathEvent
     /// </summary>
     private void Die()
     {

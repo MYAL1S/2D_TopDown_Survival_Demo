@@ -2,23 +2,23 @@ using UnityEngine;
 
 /// <summary>
 /// 玩家死亡处理组件
+/// 监听玩家 DeathEvent，通知关卡管理器结束关卡，并禁用玩家控制与碰撞
 /// </summary>
 [RequireComponent(typeof(DeathEvent))]
 [DisallowMultipleComponent]
 public class PlayerDeathHandler : MonoBehaviour
 {
-    // 玩家组件 用于在玩家死亡时访问玩家的属性和方法
+    // 玩家聚合组件，用于访问动画器等玩家运行时引用
     private Player player;
-    // 死亡事件组件 用于监听玩家死亡事件
+    // 死亡事件组件
     private DeathEvent deathEvent;
-    // 刚体组件 用于在玩家死亡时停止玩家的物理运动
+    // 刚体组件，死亡时停止玩家物理运动
     private Rigidbody2D rigidBody2D;
-    // 玩家碰撞器数组
-    // 用于在玩家死亡时禁用碰撞器 防止玩家继续与环境发生物理交互
+    // 玩家及子节点碰撞器，死亡后禁用以避免继续参与碰撞
     private Collider2D[] colliders;
-    // 玩家控制器组件 用于在玩家死亡时禁用玩家的输入和控制逻辑
+    // 玩家控制器，死亡后禁用输入控制
     private PlayerController playerController;
-    // 玩家是否已经死亡的标志 避免重复处理死亡事件
+    // 防止死亡事件重复执行
     private bool isDead;
 
     private void Awake()
@@ -50,6 +50,8 @@ public class PlayerDeathHandler : MonoBehaviour
         }
 
         isDead = true;
+        // 通知 LevelManager 以失败状态结束关卡并打开结算宝箱面板
+        EventCenter.Instance.EventTrigger(E_EventType.PlayerDied);
 
         if (rigidBody2D != null)
         {
@@ -67,8 +69,7 @@ public class PlayerDeathHandler : MonoBehaviour
     }
 
     /// <summary>
-    /// 启用或禁用玩家的碰撞器 
-    /// 在玩家死亡时禁用碰撞器 防止玩家继续与环境发生物理交互
+    /// 批量启用或禁用玩家碰撞器
     /// </summary>
     /// <param name="isEnabled">是否启用碰撞器</param>
     private void SetCollidersEnabled(bool isEnabled)
